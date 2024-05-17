@@ -24,6 +24,12 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             extra_fields.append(UserModel.last_name)
         if hasattr(UserModel, 'nickname'):
             extra_fields.append(UserModel.nickname)
+        if hasattr(UserModel, 'gender'):
+            extra_fields.append(UserModel.gender)
+        if hasattr(UserModel, 'age'):
+            extra_fields.append(UserModel.age)
+        if hasattr(UserModel, 'mbti'):
+            extra_fields.append(UserModel.mbti)
         model = UserModel
         fields = ('pk',*extra_fields)
         read_only_fields = ('email',)
@@ -43,6 +49,21 @@ class CustomRegisterSerializer(RegisterSerializer):
         allow_blank=True,
         max_length=100
     )
+    gender = serializers.CharField(
+        required = False,
+        allow_blank=True,
+        max_length=100
+    )
+    age = serializers.CharField(
+        required = False,
+        allow_blank=True,
+        max_length=100
+    )
+    mbti = serializers.CharField(
+        required = False,
+        allow_blank=True,
+        max_length=4
+    )
 
 
     def validate_username(self, username):
@@ -61,10 +82,15 @@ class CustomRegisterSerializer(RegisterSerializer):
     def validate_password1(self, password):
         return get_adapter().clean_password(password)
 
+    
+
     def get_cleaned_data(self):
         return {
             'username': self.validated_data.get('username', ''),
             'email': self.validated_data.get('email', ''),
             'password1': self.validated_data.get('password1', ''),
             'nickname': self.validated_data.get('nickname', ''),
+            'gender': self.validated_data.get('gender', ''),
+            'age': self.validated_data.get('age', ''),
+            'mbti': self.validated_data.get('mbti', ''),
         }
