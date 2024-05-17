@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     # app
     'accounts',
-    'movie',
+    'movies',
     # 'article',
 
     # DRF

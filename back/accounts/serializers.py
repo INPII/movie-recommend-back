@@ -75,7 +75,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         if allauth_account_settings.UNIQUE_EMAIL:
             if email and EmailAddress.objects.is_verified(email):
                 raise serializers.ValidationError(
-                    _('A user is already registered with this e-mail address.'),
+                    ('A user is already registered with this e-mail address.'),
                 )
         return email
 
@@ -94,3 +94,4 @@ class CustomRegisterSerializer(RegisterSerializer):
             'age': self.validated_data.get('age', ''),
             'mbti': self.validated_data.get('mbti', ''),
         }
+    
