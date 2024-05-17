@@ -65,7 +65,7 @@ class Count(models.Model):
 
 # 박스오피스 랭킹
 class Rank(models.Model):
-    movie = models.ForeignKey(Movie)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     rank = models.IntegerField()
 
 # 영화 검색을 위한 키워드
@@ -79,7 +79,7 @@ class Like(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
 
 # 영화 평점
-class Rating(models.Model):
+class avgRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     score = models.FloatField()
