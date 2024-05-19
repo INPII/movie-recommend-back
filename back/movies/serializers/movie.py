@@ -1,19 +1,33 @@
 from rest_framework import serializers
-from ..models import Movie, Actor
-from .actor import ActorSerializer
+from ..models import Movie, People, Genre
+
 
 
 # 영화 리스트
-class MovieSerializer(serializers.ModelSerializer):
-    class MovieactorSerializer(serializers.ModelSerializer):
+class MovieListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Movie
+        fields = ('id','title','poster_path','popularity','release_date','origin_country',)
+
+    
+# 영화 상세 페이지
+class MovieDetailSerializer(serializers.ModelSerializer):
+    
+    class GenreSerializer(serializers.ModelSerializer):
         class Meta:
-            model = Actor
-            fields = ('id','name',)
+            model = Genre
+            fields = '__all__'
     
-    
-    actors = MovieactorSerializer(many=True, read_only=True)
+    class PeopleSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = People
+            fields = ('id', 'name','profile_path',)
+
+    genres = GenreSerializer(allow_null=True,many=True,read_only=True)
+    people = PeopleSerializer(allow_null=True, many=True,read_only=True)
 
     class Meta:
         model = Movie
         fields = '__all__'
-    
+        

@@ -1,68 +1,56 @@
 from rest_framework.response import Response
-from django.http import JsonResponse
 from rest_framework.decorators import api_view
-from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Genre, Movie, People
+from .serializers.genre import GenreSerializer,GenreDetailSerializer
+from .serializers.people import PeopleListSerializer, PeopleDetailSerializer
+from .serializers.movie import MovieListSerializer, MovieDetailSerializer
 
-# permission Decorators
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated
-
-from django.shortcuts import get_object_or_404, get_list_or_404
-from .models import Rank,Genre,Actor,Director,Movie
-from .serializers.rank import RankSerializer
-from .serializers.genre import GenreSerializer
-from .serializers.actor import ActorSerializer
-from .serializers.director import DirectorSerializer
-from .serializers.movie import MovieSerializer
-
-def rank(request, movie_id):
-    if Movie.objects.filter(pk=movie_id).exists():
-        movie = Movie.objects.get(pk=movie_id)
-        movie_serializer = MovieSerializer(movie)
-        
-        if Rank.objects.filter(movie=movie).exists():
-            rank = Rank.objects.get(movie=movie)
-            response_data = {
-                'movie': movie_serializer.data,
-                'rank': rank.rank
-            }
-        else:
-            response_data = {
-                'movie': movie_serializer.data,
-                'rank': None
-            }
-        
-        return JsonResponse(response_data, safe=False)
-    else:
-        return JsonResponse({'error': 'Movie not found'}, status=404)
-
+@api_view(['GET'])
 def genre(request):
-    if request.method == 'GET':
-        genres = Genre.objects.all()
-        serializer = GenreSerializer(genres, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    
+    genres = Genre.objects.all()
+    serializer = GenreSerializer(genres, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def actor(request):
-    if request.method == 'GET':
-        actors = Actor.objects.all()
-        serializer = ActorSerializer(actors, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    
+    actors = People.objects.filter(known_for_department='Acting')
+    serializer = PeopleListSerializer(actors, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def director(request):
-    if request.method == 'GET':
-        directors = Director.objects.all()
-        serializer = DirectorSerializer(directors, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    
+    directors = People.objects.filter(known_for_department='Directing')
+    serializer = PeopleListSerializer(directors, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def actordetail(request, actor_id):
+    actor = get_object_or_404(People, known_for_department='Acting', pk=actor_id)
+    serializer = PeopleDetailSerializer(actor)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def directordetail(request, director_id):
+    director = get_object_or_404(People, known_for_department='Directing', pk=director_id)
+    serializer = PeopleDetailSerializer(director)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def movie(request):
-    if request.method == 'GET':
-        movies = Movie.objects.all().order_by('-popularity')[:10]
-        serializer = MovieSerializer(movies, many=True)
-        return JsonResponse(serializer.data, safe=False)
+    movies = Movie.objects.all().order_by('-popularity')[:10]
+    serializer = MovieListSerializer(movies, many=True)
+    return Response(serializer.data)
 
+@api_view(['GET'])
+def moviedetail(request, movie_id):
+    movie = get_object_or_404(Movie, pk=movie_id)
+    
+    serializer = MovieDetailSerializer(movie)
+    return Response(serializer.data)
 
-
-
-
-
-
+@api_view(['GET'])
+def genredetail(request, genre_id):
+    genre = get_object_or_404(Genre, pk=genre_id)
+    serializer = GenreDetailSerializer(genre)
+    return Response(serializer.data)
