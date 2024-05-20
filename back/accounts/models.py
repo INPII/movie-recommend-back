@@ -8,6 +8,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=100, blank=True,null=True)
     age = models.IntegerField(blank=True, null=True)
     mbti = models.CharField(max_length=4, blank=True, null=True)
+    profile_path=models.TextField(null=True)
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=True):

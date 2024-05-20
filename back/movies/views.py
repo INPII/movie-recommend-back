@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404,get_list_or_404
 from .models import Genre, Movie, People, Keyword,Review
 from .serializers.genre import GenreSerializer,GenreDetailSerializer
 from .serializers.people import PeopleListSerializer, PeopleDetailSerializer
@@ -10,7 +10,7 @@ from .serializers.movie import MovieListSerializer, MovieDetailSerializer
 from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
 from .serializers.searchmovie import MovieSerializer
 from .serializers.review import ReviewListSerializer,ReviewDetailSerializer
-from accounts.serializers import CustomUserDetailsSerializer,ProfileSerializer
+from accounts.serializers import ProfileSerializer,ProfileListSerializer
 from accounts.models import User
 # from django.contrib.auth import get_user_model
 
@@ -78,40 +78,50 @@ def genreDetail(request, genre_id):
 
 from django.db.models import Q
 
-def search_movies(query, genre_ids=None, keyword_ids=None, sort_by='popularity'):
+def search_movies(query):
     query_terms = query.split()
     filters = Q()
-    
+
     for term in query_terms:
-        term_filter = Q(title__icontains=term) | Q(original_title__icontains=term) | Q(overview__icontains=term)| Q(genres__name__icontains=term) | Q(people__name__icontains=term) | Q(keyword__name__icontains=term)
+        term_filter = (
+            Q(title__icontains=term) |
+            Q(original_title__icontains=term) |
+            Q(overview__icontains=term) |
+            Q(genres__name__icontains=term) |
+            Q(people__name__icontains=term) |
+            Q(keyword__name__icontains=term)
+        )
         filters &= term_filter
-    
-    if genre_ids:
-        filters &= Q(genres__id__in=genre_ids)
-    
-    if keyword_ids:
-        filters &= Q(keyword__id__in=keyword_ids)
-    
+
     movies = Movie.objects.filter(filters).distinct()
 
-    # Custom sorting: title, keyword, overview, people
-    movies = sorted(movies, key=lambda m: (
-        not any(query_term.lower() in m.title.lower() for query_term in query_terms),
-        not any(query_term.lower() in [kw.name.lower() for kw in m.keyword.all()] for query_term in query_terms),
-        not any(query_term.lower() in m.overview.lower() for query_term in query_terms),
-        not any(query_term.lower() in [person.name.lower() for person in m.people.all()] for query_term in query_terms),
-    ))
+    def sort_key(movie):
+        title_matches = any(term.lower() in movie.title.lower() for term in query_terms)
+        keyword_matches = any(term.lower() in [kw.name.lower() for kw in movie.keyword.all()] for term in query_terms)
+        overview_matches = any(term.lower() in movie.overview.lower() for term in query_terms)
+        genre_matches = any(term.lower() in [genre.name.lower() for genre in movie.genres.all()] for term in query_terms)
+        people_matches = any(term.lower() in [person.name.lower() for person in movie.people.all()] for term in query_terms)
+        
+        return (
+            not title_matches,
+            not keyword_matches,
+            not overview_matches,
+            not genre_matches,
+            not people_matches,
+        )
 
-    return movies[:4]
+    sorted_movies = sorted(movies, key=sort_key)
+    
+    return sorted_movies[:4]
 
 @api_view(['GET'])
 def search_movies_view(request):
-    query = request.GET.get('query')
-    genre_ids = request.GET.getlist('genres')
-    keyword_ids = request.GET.getlist('keywords')
-    sort_by = request.GET.get('sort_by', 'popularity')
+    query = request.GET.get('q')
     
-    movies = search_movies(query, genre_ids, keyword_ids, sort_by)
+    if not query:
+        return Response({"message": "검색어를 입력해주세요."}, status=400)
+    
+    movies = search_movies(query)
     
     if not movies:
         return Response({"message": "검색결과가 없습니다."}, status=404)
@@ -119,18 +129,24 @@ def search_movies_view(request):
     serializer = MovieSerializer(movies, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def review(request):
+    reviews = get_list_or_404(Review)
+    serializer = ReviewListSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
 
 @api_view(['GET','POST'])
 @permission_classes([IsAuthenticated])
-def review(request,movie_id):
+def reviewDetail(request,movie_id):
     if request.method == 'GET':
-        reviews = Review.objects.all()
-        serializer = ReviewListSerializer(reviews, many=True)
+        reviews = Review.objects.filter(movie_id=movie_id)
+        serializer = ReviewDetailSerializer(reviews, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
         movie = Movie.objects.get(pk=movie_id)
         serializer = ReviewDetailSerializer(data=request.data)
-        print(request.user)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user,movie=movie)
             return Response(serializer.data, status=status.HTTP_201_CREATED )
@@ -141,14 +157,21 @@ def review(request,movie_id):
 def profile(request):
     user = get_object_or_404(User, pk=request.user.id)
     serializer = ProfileSerializer(instance=user)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profileDetail(request,user_id):
     user = get_object_or_404(User, pk=user_id)
     serializer = ProfileSerializer(instance=user)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profileList(request):
+    users = User.objects.filter(is_superuser=False).filter(is_staff=False)
+    serializer = ProfileListSerializer(instance=users, many=True)
+    return Response(serializer.data)
 
 
 # @api_view(['GET','POST'])

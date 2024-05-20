@@ -1,6 +1,8 @@
 from django.db import models
 from accounts.models import User
 import datetime
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 # from django.contrib.auth.models import User
 
 
@@ -82,13 +84,18 @@ class PeopleLike(models.Model):
 
 # 영화 리뷰
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE ,related_name="reviews")
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     content = models.TextField(blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    rating = models.IntegerField()
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
 class ReviewLike():
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class UserGenre(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
