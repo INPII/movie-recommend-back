@@ -1,13 +1,20 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from django.shortcuts import get_object_or_404
-from .models import Genre, Movie, People, Keyword
+from .models import Genre, Movie, People, Keyword,Review
 from .serializers.genre import GenreSerializer,GenreDetailSerializer
 from .serializers.people import PeopleListSerializer, PeopleDetailSerializer
 from .serializers.movie import MovieListSerializer, MovieDetailSerializer
 from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
 from .serializers.searchmovie import MovieSerializer
+from .serializers.review import ReviewListSerializer,ReviewDetailSerializer
+from accounts.serializers import CustomUserDetailsSerializer,ProfileSerializer
+from accounts.models import User
+# from django.contrib.auth import get_user_model
 
+# User = get_user_model()
 @api_view(['GET'])
 def genre(request):
     genres = Genre.objects.all()
@@ -56,10 +63,10 @@ def movie(request):
     serializer = MovieListSerializer(movies, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
 def movieDetail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
-    
     serializer = MovieDetailSerializer(movie)
     return Response(serializer.data)
 
@@ -111,3 +118,43 @@ def search_movies_view(request):
     
     serializer = MovieSerializer(movies, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticated])
+def review(request,movie_id):
+    if request.method == 'GET':
+        reviews = Review.objects.all()
+        serializer = ReviewListSerializer(reviews, many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        movie = Movie.objects.get(pk=movie_id)
+        serializer = ReviewDetailSerializer(data=request.data)
+        print(request.user)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user,movie=movie)
+            return Response(serializer.data, status=status.HTTP_201_CREATED )
+        
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile(request):
+    user = get_object_or_404(User, pk=request.user.id)
+    serializer = ProfileSerializer(instance=user)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profileDetail(request,user_id):
+    user = get_object_or_404(User, pk=user_id)
+    serializer = ProfileSerializer(instance=user)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# @api_view(['GET','POST'])
+# @permission_classes([IsAuthenticated])
+# def (request, movie_id):
+#     movie = get_object_or_404(Movie, pk=movie_id)
+    
+#     serializer = MovieDetailSerializer(movie)
+#     return Response(serializer.data)

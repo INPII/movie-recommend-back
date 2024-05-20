@@ -7,6 +7,7 @@ from allauth.account.adapter import get_adapter
 from allauth.account import app_settings as allauth_account_settings
 from allauth.utils import get_username_max_length
 from allauth.socialaccount.models import SocialAccount, EmailAddress
+from movies.models import Review,Movie,People,Genre
 
 UserModel = get_user_model()
 
@@ -95,3 +96,41 @@ class CustomRegisterSerializer(RegisterSerializer):
             'mbti': self.validated_data.get('mbti', ''),
         }
     
+
+# UserDetailsSerializer
+class ProfileSerializer(serializers.ModelSerializer):
+    
+    # class LikePeopleSerializer(serializers.ModelSerializer):
+    #     class Meta:
+    #         model = PeopleLike
+    #         fields = ('id','name','profile_path',)
+    # class LikeMovieSerializer(serializers.ModelSerializer):
+    #     class Meta:
+    #         model = MovieLike
+    #         
+    class ReviewSerializer(serializers.ModelSerializer):
+        
+        class MovieReviewSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = Movie
+                fields =('title', 'overview', 'people', 'genres')
+            
+            class GenreSerializer(serializers.ModelSerializer):
+                class Meta:
+                    model = Genre
+                    fields = '__all__'
+                    
+            # movies = GenreSerializer(read_only = True, many=True)
+            
+        movie = MovieReviewSerializer(read_only = True)
+
+        class Meta: 
+            model = Review
+            fields = '__all__'
+
+    # movies = MovieSerializer(read_only = True, many=True)
+    review_set = ReviewSerializer(read_only = True, many=True)
+
+    class Meta:
+        model = User
+        exclude = ('password','groups','user_permissions',)
