@@ -1,10 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
-from .models import Genre, Movie, People
+from .models import Genre, Movie, People, Keyword
 from .serializers.genre import GenreSerializer,GenreDetailSerializer
 from .serializers.people import PeopleListSerializer, PeopleDetailSerializer
 from .serializers.movie import MovieListSerializer, MovieDetailSerializer
+from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
+from .serializers.searchmovie import MovieSerializer
 
 @api_view(['GET'])
 def genre(request):
@@ -25,15 +27,27 @@ def director(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def actordetail(request, actor_id):
+def actorDetail(request, actor_id):
     actor = get_object_or_404(People, known_for_department='Acting', pk=actor_id)
     serializer = PeopleDetailSerializer(actor)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def directordetail(request, director_id):
+def directorDetail(request, director_id):
     director = get_object_or_404(People, known_for_department='Directing', pk=director_id)
     serializer = PeopleDetailSerializer(director)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def keyword(request):
+    keywords = Keyword.objects.all()
+    serializer = KeywordSerializer(keywords, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def keywordDetail(request, keyword_id):
+    keyword = get_object_or_404(Keyword,  pk=keyword_id)
+    serializer = KeywordDetailSerializer(keyword)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -43,14 +57,57 @@ def movie(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def moviedetail(request, movie_id):
+def movieDetail(request, movie_id):
     movie = get_object_or_404(Movie, pk=movie_id)
     
     serializer = MovieDetailSerializer(movie)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def genredetail(request, genre_id):
+def genreDetail(request, genre_id):
     genre = get_object_or_404(Genre, pk=genre_id)
     serializer = GenreDetailSerializer(genre)
+    return Response(serializer.data)
+
+from django.db.models import Q
+
+def search_movies(query, genre_ids=None, keyword_ids=None, sort_by='popularity'):
+    query_terms = query.split()
+    filters = Q()
+    
+    for term in query_terms:
+        term_filter = Q(title__icontains=term) | Q(original_title__icontains=term) | Q(overview__icontains=term)| Q(genres__name__icontains=term) | Q(people__name__icontains=term) | Q(keyword__name__icontains=term)
+        filters &= term_filter
+    
+    if genre_ids:
+        filters &= Q(genres__id__in=genre_ids)
+    
+    if keyword_ids:
+        filters &= Q(keyword__id__in=keyword_ids)
+    
+    movies = Movie.objects.filter(filters).distinct()
+
+    # Custom sorting: title, keyword, overview, people
+    movies = sorted(movies, key=lambda m: (
+        not any(query_term.lower() in m.title.lower() for query_term in query_terms),
+        not any(query_term.lower() in [kw.name.lower() for kw in m.keyword.all()] for query_term in query_terms),
+        not any(query_term.lower() in m.overview.lower() for query_term in query_terms),
+        not any(query_term.lower() in [person.name.lower() for person in m.people.all()] for query_term in query_terms),
+    ))
+
+    return movies[:4]
+
+@api_view(['GET'])
+def search_movies_view(request):
+    query = request.GET.get('query')
+    genre_ids = request.GET.getlist('genres')
+    keyword_ids = request.GET.getlist('keywords')
+    sort_by = request.GET.get('sort_by', 'popularity')
+    
+    movies = search_movies(query, genre_ids, keyword_ids, sort_by)
+    
+    if not movies:
+        return Response({"message": "검색결과가 없습니다."}, status=404)
+    
+    serializer = MovieSerializer(movies, many=True)
     return Response(serializer.data)

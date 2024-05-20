@@ -9,6 +9,12 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
     
+class Keyword(models.Model):
+    name = models.CharField(max_length=100, null=False)
+
+    def __str__(self):
+        return self.name
+    
 class People(models.Model):
     adult = models.BooleanField(null=True)
     biography = models.TextField(null=True)
@@ -49,7 +55,7 @@ class Movie(models.Model):
     vote_count = models.IntegerField(null=True)
     detail_count = models.IntegerField(null=True)
     people = models.ManyToManyField(People, related_name="filmography")
-
+    keyword = models.ManyToManyField(Keyword, related_name="movies",blank=True)
 
 
     def __str__(self):
@@ -61,15 +67,6 @@ class Count(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
     count = models.IntegerField(null=True)
 
-# 박스오피스 랭킹
-class Rank(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    rank = models.IntegerField()
-
-# 영화 검색을 위한 키워드
-class Keyword(models.Model):
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    keyword = models.CharField(max_length = 50)
 
 # 영화 좋아요
 class Like(models.Model):
