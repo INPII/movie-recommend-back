@@ -10,9 +10,15 @@ class GenreSerializer(serializers.ModelSerializer):
 # 장르 상세정보
 class GenreDetailSerializer(serializers.ModelSerializer):
     class MovieSerializer(serializers.ModelSerializer):
+        overview = serializers.SerializerMethodField()
+
         class Meta:
             model = Movie
-            fields = ('id','title','poster_path','release_date','origin_country',)
+            fields = ('id', 'title', 'poster_path', 'release_date', 'origin_country', 'overview')
+
+        def get_overview(self, obj):
+            return obj.overview_kr if obj.overview_kr else obj.overview
+
     movies = MovieSerializer(many=True, read_only=True)
 
     class Meta:

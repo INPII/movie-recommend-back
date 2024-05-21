@@ -7,12 +7,15 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from .models import Genre, Movie, People, Keyword,Review
 from .serializers.genre import GenreSerializer,GenreDetailSerializer
 from .serializers.people import PeopleListSerializer, PeopleDetailSerializer
-from .serializers.movie import MovieListSerializer, MovieDetailSerializer
+from .serializers.movie import MovieListSerializer, MovieDetailSerializer, SurveyResponseSerializer
 from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
 from .serializers.searchmovie import MovieSerializer
 from .serializers.review import ReviewListSerializer,ReviewDetailSerializer,ReviewCreateSerializer
 from .serializers.profile import ProfileSerializer,ProfileListSerializer
 from accounts.models import User
+from .recommend import get_similar_movies,get_similar_movies_survey
+
+
 # from django.contrib.auth import get_user_model
 
 # User = get_user_model()
@@ -159,19 +162,18 @@ def movieAll(request):
     user = request.user
     movies = Movie.objects.all()
     serializer = MovieListSerializer(movies, many=True)
-    
+
     refine_list = []
     if user.is_authenticated:
         for movie in serializer.data:
             movie_id = movie['id']
-            is_liked = user.like_movie.filter(id=movie_id).exists()  # 사용자가 좋아요를 눌렀는지 확인
-            movie['is_liked'] = is_liked  # True 또는 False로 결과를 추가
+            is_liked = user.like_movie.filter(id=movie_id).exists()
+            movie['is_liked'] = is_liked
             refine_list.append(movie)
         response_data = refine_list
-        
     else:
-        response_data =serializer.data
-    
+        response_data = serializer.data
+
     return Response(response_data)
 
 
@@ -180,19 +182,18 @@ def movieAll(request):
 def movieList(request, start):
     user = request.user
     movies = Movie.objects.all()
-    reponse = movies[start: start+10]
-    serializer = MovieListSerializer(reponse, many=True)
+    response = movies[start: start + 10]
+    serializer = MovieListSerializer(response, many=True)
     refine_list = []
     if user.is_authenticated:
         for movie in serializer.data:
             movie_id = movie['id']
-            is_liked = user.like_movie.filter(id=movie_id).exists()  # 사용자가 좋아요를 눌렀는지 확인
-            movie['is_liked'] = is_liked  # True 또는 False로 결과를 추가
+            is_liked = user.like_movie.filter(id=movie_id).exists()
+            movie['is_liked'] = is_liked
             refine_list.append(movie)
         response_data = refine_list
-        
     else:
-        response_data =serializer.data
+        response_data = serializer.data
     return Response(response_data)
 
 @api_view(['GET'])
@@ -201,19 +202,14 @@ def movieDetail(request, movie_id):
     user = request.user
     movie = get_object_or_404(Movie, pk=movie_id)
     serializer = MovieDetailSerializer(movie)
-    refine_list = []
-    if user.is_authenticated:
-        for movie in serializer.data:
-            movie_id = movie['id']
-            is_liked = user.like_movie.filter(id=movie_id).exists()  # 사용자가 좋아요를 눌렀는지 확인
-            movie['is_liked'] = is_liked  # True 또는 False로 결과를 추가
-            refine_list.append(movie)
-        response_data = refine_list
-        
-    else:
-        response_data =serializer.data
-    return Response(response_data)
+    movie_data = serializer.data
 
+    if user.is_authenticated:
+        movie_id = movie_data['id']
+        is_liked = user.like_movie.filter(id=movie_id).exists()
+        movie_data['is_liked'] = is_liked
+
+    return Response(movie_data)
 
 
 def search_movies(query):
@@ -423,3 +419,28 @@ def is_following(request, user_id):
     return Response({"is_following": is_following})
 
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recommend_movies(request):
+    user = request.user
+    recommended_movies = get_similar_movies(user)
+    serializer = MovieListSerializer(recommended_movies, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def survey_response(request):
+    serializer = SurveyResponseSerializer(data=request.data)
+    if serializer.is_valid():
+        survey_response = serializer.save(user=request.user)
+        return Response(SurveyResponseSerializer(survey_response).data)
+    return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def survey_recommended_movies(request):
+    user = request.user
+    survey_recommended_movies = get_similar_movies_survey(user)
+    serializer = MovieListSerializer(survey_recommended_movies, many=True)
+    return Response(serializer.data)

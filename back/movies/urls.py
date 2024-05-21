@@ -53,6 +53,10 @@ urlpatterns = [
 
     #팔로우
     path('follow/<int:user_id>/',views.follow),
-     path('is_following/<int:user_id>/', views.is_following, name='is_following'),
-    
+    path('is_following/<int:user_id>/', views.is_following, name='is_following'),
+
+    #알고리즘 추천
+    path('recommend/',views.recommend_movies),
+    path('survey/',views.survey_response),
+    path('survey/recommend/',views.survey_recommended_movies),
 ]

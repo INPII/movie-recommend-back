@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Movie, People, Genre, Keyword
+from ..models import Movie, People, Genre, Keyword,SurveyResponse
 from accounts.models import User  
  
 
@@ -39,8 +39,17 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(allow_null=True,many=True,read_only=True)
     people = PeopleSerializer(allow_null=True, many=True,read_only=True)
     keyword = KeywordSerializer(allow_null=True, many=True,read_only=True)
+    overview = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = '__all__'
-        
+
+    def get_overview(self, obj):
+        return obj.overview_kr if obj.overview_kr else obj.overview
+
+
+class SurveyResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveyResponse
+        fields = ['question_1', 'question_2', 'question_3', 'question_4', 'question_5', 'question_6']
