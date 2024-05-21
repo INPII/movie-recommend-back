@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ..models import Movie, People, Genre, Keyword
+from accounts.models import User  
  
 
 
@@ -28,7 +29,13 @@ class MovieDetailSerializer(serializers.ModelSerializer):
         class Meta:
             model = Keyword
             fields = '__all__'
-
+    
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = User
+            fields = '__all__'
+            
+    like_movie = UserSerializer(allow_null=True, many=True,read_only=True)
     genres = GenreSerializer(allow_null=True,many=True,read_only=True)
     people = PeopleSerializer(allow_null=True, many=True,read_only=True)
     keyword = KeywordSerializer(allow_null=True, many=True,read_only=True)
@@ -37,3 +44,6 @@ class MovieDetailSerializer(serializers.ModelSerializer):
         model = Movie
         fields = '__all__'
         
+# 영화 좋아요
+class MovieLikeSerializer():
+    pass

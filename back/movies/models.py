@@ -33,7 +33,7 @@ class People(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Movie(models.Model):
     adult = models.BooleanField(null=True)
@@ -59,7 +59,18 @@ class Movie(models.Model):
     detail_count = models.IntegerField(null=True)
     people = models.ManyToManyField(People, related_name="filmography")
     keyword = models.ManyToManyField(Keyword, related_name="movies",blank=True)
+    like_user = models.ManyToManyField(User, related_name="like_movie",blank=True)
 
+
+    # 평점을 계속 업데이트
+    def update_vote_average(self):
+        reviews = self.reviews.all()
+        self.vote_count = reviews.count()
+        if self.vote_count > 0:
+            self.vote_average = sum(review.rating for review in reviews) / self.vote_count
+        else:
+            self.vote_average = 0
+        self.save()
 
     def __str__(self):
         return self.title
@@ -71,17 +82,6 @@ class Count(models.Model):
     count = models.IntegerField(null=True)
 
 
-# 영화 좋아요
-class MovieLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-
-# 사람(배우/감독) 좋아요
-class PeopleLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    people = models.ForeignKey(People, on_delete=models.CASCADE)
-
-
 # 영화 리뷰
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE ,related_name="reviews")
@@ -91,10 +91,27 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
+    def __str__(self):
+        return self.content
+    
+    #리뷰에 작성한 평점을 영화 전체 평점을 나타낼수있도록 저장해서 업데이트
+    # *args는 위치 인수(튜플), **kwargs는 키워드 인수(딕셔너리)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.movie.update_vote_average()
+
+# 사람(배우/감독) 좋아요
+class PeopleLike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    people = models.ForeignKey(People, on_delete=models.CASCADE)
+
+# 리뷰 좋아요
 class ReviewLike():
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+
+# 유저의 장르
 class UserGenre(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)

@@ -9,34 +9,69 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 
-from .serializers.article import ArticleListSerializer, ArticleSerializer
+from .serializers.article import ArticleListSerializer, ArticleSerializer,ArticleCreateSerializer
 from .serializers.comment import CommentListSerializer, CommentSerializer
 from .models import Article,Comment
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def articleAll(request):
+    article = Article.objects.all()
+    serializer = ArticleListSerializer(article,many=True)
+    return Response(serializer.data)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def article_list(request):
+def articleList(request):
     if request.method == 'GET':
         articles = get_list_or_404(Article)
         serializer = ArticleListSerializer(articles, many=True)
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        serializer = ArticleSerializer(data=request.data)
+        serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET'])
+@api_view(['GET','PUT','DELETE'])
 @permission_classes([IsAuthenticated])
-def article_detail(request, article_id):
+def articleDetail(request, article_id):
     article = get_object_or_404(Article, pk=article_id)
-
     if request.method == 'GET':
         serializer = ArticleSerializer(article)
         return Response(serializer.data)
+    elif request.method == 'PUT':
+        if request.user != article.user:
+            return Response({"detail":"게시글 작성자만 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = ArticleCreateSerializer(article, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        if request.user != article.user:
+            return Response({"detail":"게시글 작성자만 리뷰를 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+    
+    article.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+def article_like(request,article_id):
+    user=request.user
+    article=get_object_or_404(Article, pk=article_id)
+    
+    if article.like_users.filter(pk=user.pk).exists():
+        article.like_users.remove(user)
+        return Response({'message': 'delete'}, status=status.HTTP_204_NO_CONTENT)
+    else:
+        article.like_users.add(user)
+        return Response({'message': 'create','like_count': article.like_count}, status=status.HTTP_201_CREATED) 
+
 
 
 @api_view(['GET'])

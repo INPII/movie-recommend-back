@@ -7,7 +7,7 @@ from allauth.account.adapter import get_adapter
 from allauth.account import app_settings as allauth_account_settings
 from allauth.utils import get_username_max_length
 from allauth.socialaccount.models import SocialAccount, EmailAddress
-from movies.models import Review,Movie,People,Genre,MovieLike,PeopleLike,UserGenre
+from movies.models import Review,Movie,People,Genre,PeopleLike,UserGenre
 
 UserModel = get_user_model()
 
@@ -97,34 +97,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         }
     
 
-# UserDetailsSerializer
-# class ProfileSerializer(serializers.ModelSerializer):
-     
-#     class ReviewSerializer(serializers.ModelSerializer):
-        
-#         class MovieReviewSerializer(serializers.ModelSerializer):
-#             class Meta:
-#                 model = Movie
-#                 fields =('title', 'overview', 'people', 'genres')
-            
-#             class GenreSerializer(serializers.ModelSerializer):
-#                 class Meta:
-#                     model = Genre
-#                     fields = '__all__'
-                    
-            
-            
-#         movie = MovieReviewSerializer(read_only = True)
 
-#         class Meta: 
-#             model = Review
-#             fields = '__all__'
-
-#     review_set = ReviewSerializer(read_only = True, many=True)
-
-#     class Meta:
-#         model = User
-#         exclude = ('password','groups','user_permissions',)
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
@@ -135,7 +108,7 @@ class MovieSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ['id', 'title', 'poster_path', 'overview', 'genres']
+        fields = ['id', 'title', 'poster_path', 'genres',]
 
 class PeopleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -149,20 +122,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = '__all__'
 
-class LikeMovieSerializer(serializers.ModelSerializer):
-    movie = MovieSerializer(read_only=True)
-
-    class Meta:
-        model = MovieLike
-        fields = ['movie']
-
-class LikePeopleSerializer(serializers.ModelSerializer):
-    people = PeopleSerializer(read_only=True)
-
-    class Meta:
-        model = PeopleLike
-        fields = ['people']
-
 class UserGenreSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True)
 
@@ -172,9 +131,10 @@ class UserGenreSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(read_only=True, many=True)
-    movie_likes = LikeMovieSerializer(source='movielike_set', read_only=True, many=True)
-    people_likes = LikePeopleSerializer(source='peoplelike_set', read_only=True, many=True)
+    like_movies = MovieSerializer(read_only=True, many=True)
+    # people_likes = LikePeopleSerializer(source='peoplelike_set', read_only=True, many=True)
     favorite_genres = UserGenreSerializer(source='usergenre_set', read_only=True, many=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -186,3 +146,4 @@ class ProfileListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id','username','nickname','profile_path',)
+

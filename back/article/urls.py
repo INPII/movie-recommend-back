@@ -3,8 +3,9 @@ from . import views
 
 
 urlpatterns = [
-    path('articles/', views.article_list),
-    path('articles/<int:article_id>/', views.article_detail),
-    path('articles/<int:article_id>/comment/', views.comment),
-    path('search/article/', views.search_articles),
+    path('', views.articleAll),
+    path('like/<int:article_id>/',views.article_like),
+    path('<int:article_id>/', views.articleDetail),
+    path('comment/<int:article_id>/', views.comment),
+    path('search/', views.search_articles),
 ]

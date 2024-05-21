@@ -9,6 +9,7 @@ class User(AbstractUser):
     age = models.IntegerField(blank=True, null=True)
     mbti = models.CharField(max_length=4, blank=True, null=True)
     profile_path=models.TextField(null=True)
+    followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=True):
@@ -46,4 +47,4 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         if commit:
             user.save()
         return user
-        
+

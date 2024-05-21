@@ -27,10 +27,15 @@ class ReviewListSerializer(serializers.ModelSerializer):
 class ReviewDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     movie = MovieSerializer(read_only=True)
-
+    like_review = UserSerializer(allow_null=True, many=True,read_only=True)
     class Meta:
         model = Review
-        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie',)
+        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie','like_review',)
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ('content', 'rating')
         
 
 # # 사람 상세 리스트

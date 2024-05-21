@@ -19,7 +19,7 @@ class MovieSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True)
     people = PeopleSerializer(many=True)
     keywords = KeywordSerializer(many=True, source='keyword')
-
+    
     class Meta:
         model = Movie
-        fields = ('id','title', 'keywords', 'overview', 'people','genres','people','keywords',)
+        fields = ('id','title', 'keywords', 'overview', 'people','genres','people','keywords','poster_path',)
