@@ -30,6 +30,7 @@ class People(models.Model):
     place_of_birth = models.TextField(null=True)
     popularity = models.FloatField(null=True)
     profile_path=models.TextField(null=True)
+    like_user = models.ManyToManyField(User, blank=True,related_name="like_people")
 
     def __str__(self):
         return self.name
@@ -105,10 +106,6 @@ class PeopleLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     people = models.ForeignKey(People, on_delete=models.CASCADE)
 
-# 리뷰 좋아요
-class ReviewLike():
-    review = models.ForeignKey(Review, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 # 유저의 장르

@@ -11,7 +11,7 @@ from .serializers.movie import MovieListSerializer, MovieDetailSerializer
 from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
 from .serializers.searchmovie import MovieSerializer
 from .serializers.review import ReviewListSerializer,ReviewDetailSerializer,ReviewCreateSerializer
-from accounts.serializers import ProfileSerializer,ProfileListSerializer
+from .serializers.profile import ProfileSerializer,ProfileListSerializer
 from accounts.models import User
 # from django.contrib.auth import get_user_model
 
@@ -36,52 +36,97 @@ def genreDetail(request, genre_id):
     serializer = GenreDetailSerializer(genre)
     return Response(serializer.data)
 
+# @api_view(['GET'])
+# def actorAll(request):
+#     actors = People.objects.filter(known_for_department='Acting')
+#     serializer = PeopleListSerializer(actors, many=True)
+#     return Response(serializer.data)
+
+# @api_view(['GET'])
+# def actorList(request,start):
+#     actors = People.objects.filter(known_for_department='Acting')
+#     response = actors[start:start+10]
+#     serializer = PeopleListSerializer(response, many=True)
+#     return Response(serializer.data)
+
+
+# @api_view(['GET'])
+# def directorAll(request):
+#     directors = People.objects.filter(known_for_department='Directing')
+#     serializer = PeopleListSerializer(directors, many=True)
+#     return Response(serializer.data)
+
+# @api_view(['GET'])
+# def directorList(request,start):
+#     directors = People.objects.filter(known_for_department='Directing')
+#     response = directors[start:start+10]
+#     serializer = PeopleListSerializer(response, many=True)
+#     return Response(serializer.data)
+
+# @api_view(['GET'])
+# def directorList(request, start):
+#     directors = People.objects.filter(known_for_department='Directing')
+#     response = directors[start: start + 10]
+#     serializer = PeopleListSerializer(response, many=True)
+#     return Response(serializer.data)
+
+
+# @api_view(['GET'])
+# def actorDetail(request, actor_id):
+#     actor = get_object_or_404(People, known_for_department='Acting', pk=actor_id)
+#     serializer = PeopleDetailSerializer(actor)
+#     return Response(serializer.data)
+
+# @api_view(['GET'])
+# def directorDetail(request, director_id):
+#     director = get_object_or_404(People, known_for_department='Directing', pk=director_id)
+#     serializer = PeopleDetailSerializer(director)
+#     return Response(serializer.data)
+
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def actorAll(request):
     actors = People.objects.filter(known_for_department='Acting')
-    serializer = PeopleListSerializer(actors, many=True)
+    serializer = PeopleListSerializer(actors, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
-def actorList(request,start):
+@permission_classes([AllowAny])
+def actorList(request, start):
     actors = People.objects.filter(known_for_department='Acting')
     response = actors[start:start+10]
-    serializer = PeopleListSerializer(response, many=True)
+    serializer = PeopleListSerializer(response, many=True, context={'request': request})
     return Response(serializer.data)
 
-
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def directorAll(request):
     directors = People.objects.filter(known_for_department='Directing')
-    serializer = PeopleListSerializer(directors, many=True)
+    serializer = PeopleListSerializer(directors, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
-def directorList(request,start):
-    directors = People.objects.filter(known_for_department='Directing')
-    response = directors[start:start+10]
-    serializer = PeopleListSerializer(response, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
+@permission_classes([AllowAny])
 def directorList(request, start):
     directors = People.objects.filter(known_for_department='Directing')
-    response = directors[start: start + 10]
-    serializer = PeopleListSerializer(response, many=True)
+    response = directors[start:start+10]
+    serializer = PeopleListSerializer(response, many=True, context={'request': request})
     return Response(serializer.data)
 
-
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def actorDetail(request, actor_id):
     actor = get_object_or_404(People, known_for_department='Acting', pk=actor_id)
-    serializer = PeopleDetailSerializer(actor)
+    serializer = PeopleDetailSerializer(actor, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def directorDetail(request, director_id):
     director = get_object_or_404(People, known_for_department='Directing', pk=director_id)
-    serializer = PeopleDetailSerializer(director)
+    serializer = PeopleDetailSerializer(director, context={'request': request})
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def keywordAll(request):
@@ -116,7 +161,6 @@ def movieAll(request):
     serializer = MovieListSerializer(movies, many=True)
     
     refine_list = []
-    print(user)
     if user.is_authenticated:
         for movie in serializer.data:
             movie_id = movie['id']
@@ -129,19 +173,46 @@ def movieAll(request):
         response_data =serializer.data
     
     return Response(response_data)
+
+
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def movieList(request, start):
+    user = request.user
     movies = Movie.objects.all()
     reponse = movies[start: start+10]
     serializer = MovieListSerializer(reponse, many=True)
-    return Response(serializer.data)
+    refine_list = []
+    if user.is_authenticated:
+        for movie in serializer.data:
+            movie_id = movie['id']
+            is_liked = user.like_movie.filter(id=movie_id).exists()  # 사용자가 좋아요를 눌렀는지 확인
+            movie['is_liked'] = is_liked  # True 또는 False로 결과를 추가
+            refine_list.append(movie)
+        response_data = refine_list
+        
+    else:
+        response_data =serializer.data
+    return Response(response_data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def movieDetail(request, movie_id):
+    user = request.user
     movie = get_object_or_404(Movie, pk=movie_id)
     serializer = MovieDetailSerializer(movie)
-    return Response(serializer.data)
+    refine_list = []
+    if user.is_authenticated:
+        for movie in serializer.data:
+            movie_id = movie['id']
+            is_liked = user.like_movie.filter(id=movie_id).exists()  # 사용자가 좋아요를 눌렀는지 확인
+            movie['is_liked'] = is_liked  # True 또는 False로 결과를 추가
+            refine_list.append(movie)
+        response_data = refine_list
+        
+    else:
+        response_data =serializer.data
+    return Response(response_data)
 
 
 
@@ -260,21 +331,20 @@ def reviewDetail(request, review_id):
     review.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
         
-
-#자기자신 프로필
+# 자기 자신 프로필
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile(request):
     user = get_object_or_404(User, pk=request.user.id)
-    serializer = ProfileSerializer(instance=user)
+    serializer = ProfileSerializer(instance=user, context={'request': request})
     return Response(serializer.data)
 
-#다른 사람 프로필 페이지
+# 다른 사람 프로필 페이지
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def profileDetail(request,user_id):
+def profileDetail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
-    serializer = ProfileSerializer(instance=user)
+    serializer = ProfileSerializer(instance=user, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -283,6 +353,20 @@ def profileList(request):
     users = User.objects.filter(is_superuser=False).filter(is_staff=False)
     serializer = ProfileListSerializer(instance=users, many=True)
     return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_people(request,people_id):
+    user=request.user
+    people = get_object_or_404(People, pk=people_id)
+    if people.like_user.filter(pk=user.pk).exists():
+        people.like_user.remove(user)
+        serializer = PeopleDetailSerializer(people)
+        return Response(serializer.data)
+    else:
+        people.like_user.add(user)
+        serializer = PeopleDetailSerializer(people)
+        return Response(serializer.data) 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -328,3 +412,14 @@ def follow(request, user_id):
     else:
         target_user.followers.add(user)
         return Response({"status": "팔로우"}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_following(request, user_id):
+    user = request.user
+    target_user = get_object_or_404(User, id=user_id)
+
+    is_following = target_user.followers.filter(id=user.id).exists()
+    return Response({"is_following": is_following})
+
+

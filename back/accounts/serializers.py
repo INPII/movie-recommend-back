@@ -7,7 +7,6 @@ from allauth.account.adapter import get_adapter
 from allauth.account import app_settings as allauth_account_settings
 from allauth.utils import get_username_max_length
 from allauth.socialaccount.models import SocialAccount, EmailAddress
-from movies.models import Review,Movie,People,Genre,PeopleLike,UserGenre
 
 UserModel = get_user_model()
 
@@ -98,52 +97,4 @@ class CustomRegisterSerializer(RegisterSerializer):
     
 
 
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = '__all__'
-
-class MovieSerializer(serializers.ModelSerializer):
-    genres = GenreSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Movie
-        fields = ['id', 'title', 'poster_path', 'genres',]
-
-class PeopleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = People
-        fields = ['id', 'name', 'profile_path']
-
-class ReviewSerializer(serializers.ModelSerializer):
-    movie = MovieSerializer(read_only=True)
-
-    class Meta: 
-        model = Review
-        fields = '__all__'
-
-class UserGenreSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(read_only=True)
-
-    class Meta:
-        model = UserGenre
-        fields = ['genre']
-
-class ProfileSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(read_only=True, many=True)
-    like_movies = MovieSerializer(read_only=True, many=True)
-    # people_likes = LikePeopleSerializer(source='peoplelike_set', read_only=True, many=True)
-    favorite_genres = UserGenreSerializer(source='usergenre_set', read_only=True, many=True)
-    is_following = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        exclude = ('password', 'groups', 'user_permissions','is_superuser', 'is_staff','is_active',)
-
-
-
-class ProfileListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id','username','nickname','profile_path',)
 

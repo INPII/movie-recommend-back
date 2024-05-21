@@ -17,6 +17,9 @@ urlpatterns = [
     path('director/list/<int:start>/',views.directorList),
     path('director/<int:director_id>/',views.directorDetail),
     
+    #좋아요한 감독/배우
+    path('people/like/<int:people_id>',views.like_people),
+
     #박스오피스
     path('boxoffice/',views.boxOffice),
     
@@ -50,5 +53,6 @@ urlpatterns = [
 
     #팔로우
     path('follow/<int:user_id>/',views.follow),
+     path('is_following/<int:user_id>/', views.is_following, name='is_following'),
     
 ]

@@ -3,17 +3,17 @@ from ..models import Movie,Genre,People,Keyword
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['name']
+        fields = ('name',)
 
 class PeopleSerializer(serializers.ModelSerializer):
     class Meta:
         model = People
-        fields = ['name']
+        fields = ('name',)
 
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ['name']
+        fields = ('name',)
 
 class MovieSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True)

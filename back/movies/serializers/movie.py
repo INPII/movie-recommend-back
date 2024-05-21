@@ -44,6 +44,3 @@ class MovieDetailSerializer(serializers.ModelSerializer):
         model = Movie
         fields = '__all__'
         
-# 영화 좋아요
-class MovieLikeSerializer():
-    pass
