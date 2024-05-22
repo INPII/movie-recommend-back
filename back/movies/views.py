@@ -224,12 +224,14 @@ def movieList(request, start):
 def movieDetail(request, movie_id):
     user = request.user
     movie = get_object_or_404(Movie, pk=movie_id)
-    serializer = MovieDetailSerializer(movie)
+    
+    # 시리얼라이저에 request 컨텍스트 전달
+    serializer = MovieDetailSerializer(movie, context={'request': request})
     movie_data = serializer.data
 
     if user.is_authenticated:
         movie_id = movie_data['id']
-        is_liked = user.like_movie.filter(id=movie_id).exists()
+        is_liked = user.liked_movies.filter(id=movie_id).exists()  # user.like_movie -> user.liked_movies로 수정
         movie_data['is_liked'] = is_liked
 
     return Response(movie_data, status=status.HTTP_200_OK)
@@ -429,17 +431,17 @@ def like_movie(request,movie_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_review(request, review_id):
-    user=request.user
-    review = get_object_or_404(Movie, pk=review_id)
+    user = request.user
+    review = get_object_or_404(Review, pk=review_id)
+
     if review.like_user.filter(pk=user.pk).exists():
         review.like_user.remove(user)
-        serializer = ReviewDetailSerializer(review)
-        return Response(serializer.data)
     else:
         review.like_user.add(user)
-        serializer = ReviewDetailSerializer(review)
-        return Response(serializer.data) 
-    
+
+    serializer = ReviewDetailSerializer(review, context={'request': request})
+    return Response(serializer.data)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

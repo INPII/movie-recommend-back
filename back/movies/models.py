@@ -115,6 +115,7 @@ class Movie(models.Model):
     overview_kr = models.TextField(null=True, blank=True)
 
     # 평점을 계속 업데이트
+
     def update_vote_average(self, new_rating=None, delete_rating=None):
         if new_rating is not None:
             total_rating = self.vote_average * self.vote_count + new_rating

@@ -34,9 +34,12 @@ class ReviewListSerializer(serializers.ModelSerializer):
         return obj.like_user.count()
 
     def get_is_liked(self, obj):
-        user = self.context.get('request').user
+        request = self.context.get('request', None)
+        if request is None or not hasattr(request, 'user'):
+            return False
+        user = request.user
         return obj.like_user.filter(id=user.id).exists() if user.is_authenticated else False
-# 리뷰 상세페이지
+
 class ReviewDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     movie = MovieSerializer(read_only=True)
@@ -52,8 +55,14 @@ class ReviewDetailSerializer(serializers.ModelSerializer):
         return obj.like_user.count()
 
     def get_is_liked(self, obj):
-        user = self.context.get('request').user
+        request = self.context.get('request', None)
+        if request is None or not hasattr(request, 'user'):
+            return False
+        user = request.user
         return obj.like_user.filter(id=user.id).exists() if user.is_authenticated else False
+
+    
+
 class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
