@@ -11,10 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
 # 영화 리스트
 class MovieListSerializer(serializers.ModelSerializer):
     like_movie = UserSerializer(allow_null=True, many=True,read_only=True)
+    title = serializers.SerializerMethodField()
+
     class Meta:
         model = Movie
         fields = ('id','title','poster_path','popularity','release_date','origin_country','status','like_movie',)
 
+    def get_title(self, obj):
+        return obj.name_kr if obj.name_kr else obj.title
     
 # 영화 상세 페이지
 class MovieDetailSerializer(serializers.ModelSerializer):
@@ -40,6 +44,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     people = PeopleSerializer(allow_null=True, many=True,read_only=True)
     keywords = KeywordSerializer(allow_null=True, many=True,read_only=True)
     overview = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
     reviews = ReviewListSerializer(source='review_set', many=True, read_only=True)
 
     class Meta:
@@ -49,6 +54,8 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     def get_overview(self, obj):
         return obj.overview_kr if obj.overview_kr else obj.overview
 
+    def get_title(self, obj):
+        return obj.name_kr if obj.name_kr else obj.title
 
 class SurveyResponseSerializer(serializers.ModelSerializer):
     class Meta:

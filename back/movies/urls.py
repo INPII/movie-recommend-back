@@ -28,6 +28,7 @@ urlpatterns = [
     path('list/<int:start>/',views.movieList),
     path('<int:movie_id>/',views.movieDetail),
     path('like/',views.like_movie),
+    path('postproduction/',views.PostProductionMovieList),
 
     #키워드
     path('keyword/all/',views.keywordAll),

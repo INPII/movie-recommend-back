@@ -234,6 +234,12 @@ def movieDetail(request, movie_id):
 
     return Response(movie_data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def PostProductionMovieList(request):
+    movies = Movie.objects.filter(status="Post Production")
+    serializer = MovieListSerializer(movies, many=True, context={'request':request})
+    return Response(serializer.data)
 
 
 def search_movies(query):

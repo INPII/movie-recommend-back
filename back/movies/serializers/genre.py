@@ -11,6 +11,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class GenreDetailSerializer(serializers.ModelSerializer):
     class MovieSerializer(serializers.ModelSerializer):
         overview = serializers.SerializerMethodField()
+        title = serializers.SerializerMethodField()
 
         class Meta:
             model = Movie
@@ -19,6 +20,9 @@ class GenreDetailSerializer(serializers.ModelSerializer):
         def get_overview(self, obj):
             return obj.overview_kr if obj.overview_kr else obj.overview
 
+        def get_title(self, obj):
+            return obj.name_kr if obj.name_kr else obj.title
+    
     movies = MovieSerializer(many=True, read_only=True)
 
     class Meta:

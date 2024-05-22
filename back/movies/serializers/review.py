@@ -6,9 +6,13 @@ from accounts.models import User
 
 # 영화를 참조하기위해 들고온 시리얼라이저
 class MovieSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
     class Meta:
         model = Movie
         fields = ('id', 'title', 'poster_path')
+
+    def get_title(self, obj):
+        return obj.name_kr if obj.name_kr else obj.title
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

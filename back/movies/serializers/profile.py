@@ -10,10 +10,14 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class MovieSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(read_only=True, many=True)
+    title = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
         fields = ('id', 'title', 'poster_path', 'genres',)
+
+    def get_title(self, obj):
+        return obj.name_kr if obj.name_kr else obj.title
 
 class PeopleSerializer(serializers.ModelSerializer):
     class Meta:
