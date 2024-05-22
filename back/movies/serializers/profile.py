@@ -42,11 +42,10 @@ class FollowUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'nickname', 'profile_path', 'followers_count', 'following_count',)
 
 class ProfileSerializer(serializers.ModelSerializer):
-    reviews = ReviewSerializer(read_only=True, many=True)
-    # like_movies = MovieSerializer(read_only=True, many=True)
-    like_movies = MovieSerializer( read_only=True, many=True)
+    user_reviews = ReviewSerializer(read_only=True, many=True)
+    liked_movies = MovieSerializer(read_only=True, many=True)
     favorite_genres = UserGenreSerializer(source='usergenre_set', read_only=True, many=True)
-    liked_people = PeopleSerializer(source='like_people', read_only=True, many=True)
+    liked_people = PeopleSerializer(read_only=True, many=True)
     is_following = serializers.SerializerMethodField()
 
     class Meta:
@@ -68,7 +67,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'nickname', 'profile_path', 'first_name', 'last_name', 'age', 'mbti', 'gender', 'email')
+        fields = ('id', 'username', 'nickname', 'profile_path', 'first_name', 'last_name', 'age', 'mbti', 'gender', 'email',)
         read_only_fields = ('username', 'email')
 
     def update(self, instance, validated_data):

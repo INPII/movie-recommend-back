@@ -3,133 +3,152 @@
         "pk": 28,
         "model": "movies.genre",
         "fields": {
-            "name": "Action"
+            "name": "Action",
+            "name_kr": "액션"
         }
     },
     {
         "pk": 12,
         "model": "movies.genre",
         "fields": {
-            "name": "Adventure"
+            "name": "Adventure",
+            "name_kr": "모험"
         }
     },
     {
         "pk": 16,
         "model": "movies.genre",
         "fields": {
-            "name": "Animation"
+            "name": "Animation",
+            "name_kr": "애니메이션"
         }
     },
     {
         "pk": 35,
         "model": "movies.genre",
         "fields": {
-            "name": "Comedy"
+            "name": "Comedy",
+            "name_kr": "코미디"
         }
     },
     {
         "pk": 80,
         "model": "movies.genre",
         "fields": {
-            "name": "Crime"
+            "name": "Crime",
+            "name_kr": "범죄"
         }
     },
     {
         "pk": 99,
         "model": "movies.genre",
         "fields": {
-            "name": "Documentary"
+            "name": "Documentary",
+            "name_kr": "다큐멘터리"
         }
     },
     {
         "pk": 18,
         "model": "movies.genre",
         "fields": {
-            "name": "Drama"
+            "name": "Drama",
+            "name_kr": "드라마"
         }
     },
     {
         "pk": 10751,
         "model": "movies.genre",
         "fields": {
-            "name": "Family"
+            "name": "Family",
+            "name_kr": "가족"
         }
     },
     {
         "pk": 14,
         "model": "movies.genre",
         "fields": {
-            "name": "Fantasy"
+            "name": "Fantasy",
+            "name_kr": "판타지"
         }
     },
     {
         "pk": 36,
         "model": "movies.genre",
         "fields": {
-            "name": "History"
+            "name": "History",
+            "name_kr": "역사"
         }
     },
     {
         "pk": 27,
         "model": "movies.genre",
         "fields": {
-            "name": "Horror"
+            "name": "Horror",
+            "name_kr": "공포"
         }
     },
     {
         "pk": 10402,
         "model": "movies.genre",
         "fields": {
-            "name": "Music"
+            "name": "Music",
+            "name_kr": "음악"
         }
     },
     {
         "pk": 9648,
         "model": "movies.genre",
         "fields": {
-            "name": "Mystery"
+            "name": "Mystery",
+            "name_kr": "미스터리"
         }
     },
     {
         "pk": 10749,
         "model": "movies.genre",
         "fields": {
-            "name": "Romance"
+            "name": "Romance",
+            "name_kr": "로맨스"
         }
     },
     {
         "pk": 878,
         "model": "movies.genre",
         "fields": {
-            "name": "Science Fiction"
+            "name": "Science Fiction",
+            "name_kr": "SF"
         }
     },
     {
         "pk": 10770,
         "model": "movies.genre",
         "fields": {
-            "name": "TV Movie"
+            "name": "TV Movie",
+            "name_kr": "TV 영화"
         }
     },
     {
         "pk": 53,
         "model": "movies.genre",
         "fields": {
-            "name": "Thriller"
+            "name": "Thriller",
+            "name_kr": "스릴러"
         }
     },
     {
         "pk": 10752,
         "model": "movies.genre",
         "fields": {
-            "name": "War"
+            "name": "War",
+            "name_kr": "전쟁"
         }
     },
     {
         "pk": 37,
         "model": "movies.genre",
         "fields": {
-            "name": "Western"
+            "name": "Western",
+            "name_kr": "서부"
         }
     }
 ]
