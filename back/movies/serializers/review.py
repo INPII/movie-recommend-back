@@ -19,19 +19,37 @@ class UserSerializer(serializers.ModelSerializer):
 class ReviewListSerializer(serializers.ModelSerializer):
     movie = MovieSerializer(read_only=True)  
     user = UserSerializer(read_only=True)
+    like_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
-        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie',)
+        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie', 'like_count', 'is_liked')
 
-# 리뷰 상세 리스트
+    def get_like_count(self, obj):
+        return obj.like_user.count()
+
+    def get_is_liked(self, obj):
+        user = self.context.get('request').user
+        return obj.like_user.filter(id=user.id).exists() if user.is_authenticated else False
+# 리뷰 상세페이지
 class ReviewDetailSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     movie = MovieSerializer(read_only=True)
-    like_review = UserSerializer(allow_null=True, many=True,read_only=True)
+    like_review = UserSerializer(allow_null=True, many=True, read_only=True)
+    like_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+
     class Meta:
         model = Review
-        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie','like_review',)
+        fields = ('id', 'content', 'create_at', 'updated_at', 'rating', 'user', 'movie', 'like_review', 'like_count', 'is_liked')
 
+    def get_like_count(self, obj):
+        return obj.like_user.count()
+
+    def get_is_liked(self, obj):
+        user = self.context.get('request').user
+        return obj.like_user.filter(id=user.id).exists() if user.is_authenticated else False
 class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review

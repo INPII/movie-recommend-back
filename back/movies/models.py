@@ -150,6 +150,7 @@ class Review(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    like_user = models.ManyToManyField(User, related_name="liked_reviews", blank=True)
 
     def __str__(self):
         return self.content

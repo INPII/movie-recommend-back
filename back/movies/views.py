@@ -289,18 +289,20 @@ def search_movies_view(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def reviewAll(request):
     reviews = Review.objects.all()
-    serializer = ReviewListSerializer(reviews, many=True)
+    serializer = ReviewListSerializer(reviews, many=True, context={'request': request})
     if not reviews:
         return Response({'message': 'No reviews found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def reviewList(request, start):
     reviews = Review.objects.all()
     response = reviews[start:start+10]
-    serializer = ReviewListSerializer(response, many=True)
+    serializer = ReviewListSerializer(response, many=True, context={'request': request})
     if not response:
         return Response({'message': 'No reviews found in the specified range', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -310,7 +312,7 @@ def reviewList(request, start):
 def review(request, movie_id):
     if request.method == 'GET':
         reviews = Review.objects.filter(movie_id=movie_id)
-        serializer = ReviewListSerializer(reviews, many=True)
+        serializer = ReviewListSerializer(reviews, many=True, context={'request': request})
         if not reviews:
             return Response({'message': 'No reviews found for this movie', 'data': []}, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -335,7 +337,7 @@ def review(request, movie_id):
 def reviewDetail(request, review_id):
     review = get_object_or_404(Review, pk=review_id)
     if request.method == 'GET':
-        serializer = ReviewDetailSerializer(review)
+        serializer = ReviewDetailSerializer(review, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         if request.user != review.user:
