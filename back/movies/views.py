@@ -377,6 +377,9 @@ def profile(request):
 @permission_classes([IsAuthenticated])
 def profileDetail(request, user_id):
     user = get_object_or_404(User, pk=user_id)
+    if request.user != user:
+        user.profile_view_count += 1  # 자신의 프로필이 아닌 경우에만 조회수 증가
+        user.save()
     serializer = ProfileSerializer(instance=user, context={'request': request})
     return Response(serializer.data)
 
@@ -419,7 +422,7 @@ def like_movie(request,movie_id):
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def review_like(request, review_id):
+def like_review(request, review_id):
     user=request.user
     review = get_object_or_404(Movie, pk=review_id)
     if review.like_user.filter(pk=user.pk).exists():

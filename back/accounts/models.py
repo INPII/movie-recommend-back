@@ -10,6 +10,7 @@ class User(AbstractUser):
     mbti = models.CharField(max_length=4, blank=True, null=True)
     profile_path=models.TextField(null=True)
     followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
+    profile_view_count = models.IntegerField(default=0)  # 프로필 조회수 필드 추가
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=True):

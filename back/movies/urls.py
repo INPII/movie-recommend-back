@@ -42,7 +42,7 @@ urlpatterns = [
     path('review/all/',views.reviewAll),
     path('review/list/<int:start>/',views.reviewList),
     path('review/<int:review_id>/',views.reviewDetail),
-    path('review/like/<int:review_id>/',views.review_like),
+    path('review/like/<int:review_id>/',views.like_review),
     path('<int:movie_id>/review/',views.review),
 
 

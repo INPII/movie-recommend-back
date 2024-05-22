@@ -49,6 +49,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     liked_people = PeopleSerializer(read_only=True, many=True)
     is_following = serializers.SerializerMethodField()
     most_liked_genres = serializers.SerializerMethodField()
+    profile_view_count = serializers.IntegerField(read_only=True)  # 프로필 조회수 필드 추가
 
     class Meta:
         model = User

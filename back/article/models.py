@@ -10,6 +10,7 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now =True)
     img_path = models.TextField(null=True, blank=True)
     like_users = models.ManyToManyField(User, related_name="like_article",blank=True)
+    view_count = models.IntegerField(default=0)  # 조회수 필드 추가
 
     def __str__(self):
         return self.title

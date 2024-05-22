@@ -40,6 +40,9 @@ def articleList(request):
 def articleDetail(request, article_id):
     article = get_object_or_404(Article, pk=article_id)
     if request.method == 'GET':
+        if request.user != article.user:
+            article.view_count += 1  # 자신이 작성한 게시글이 아닌 경우에만 조회수 증가
+            article.save()
         serializer = ArticleSerializer(article, context={'request': request})
         return Response(serializer.data)
     elif request.method == 'PUT':
@@ -53,7 +56,6 @@ def articleDetail(request, article_id):
     elif request.method == 'DELETE':
         if request.user != article.user:
             return Response({"detail": "게시글 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
-    
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -71,20 +73,21 @@ def article_like(request, article_id):
         return Response({'message': 'create', 'like_count': article.like_count}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def comment(request,article_id):
+def comment(request, article_id):
     if request.method == 'GET':
         comments = Comment.objects.filter(article_id=article_id)
-        serializer = CommentListSerializer(comments, many=True)
+        serializer = CommentListSerializer(comments, many=True, context={'request': request})
         return Response(serializer.data)
 
     elif request.method == 'POST':
-        article = Article.objects.get(pk=article_id)
+        article = get_object_or_404(Article, pk=article_id)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user, article=article)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
