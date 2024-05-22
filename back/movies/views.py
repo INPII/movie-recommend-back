@@ -24,6 +24,8 @@ from .recommend import get_similar_movies,get_similar_movies_survey
 def genreAll(request):
     genres = Genre.objects.all()
     serializer = GenreSerializer(genres, many=True)
+    if not genres:
+        return Response({'message': 'No genres found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -31,13 +33,15 @@ def genreList(request, start):
     genres = Genre.objects.all()
     response = genres[start:start+10]
     serializer = GenreSerializer(response, many=True)
-    return Response(serializer.data)
+    if not response:
+        return Response({'message': 'No genres found in the specified range', 'data': []}, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def genreDetail(request, genre_id):
     genre = get_object_or_404(Genre, pk=genre_id)
     serializer = GenreDetailSerializer(genre)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(['GET'])
 # def actorAll(request):
@@ -91,6 +95,8 @@ def genreDetail(request, genre_id):
 def actorAll(request):
     actors = People.objects.filter(known_for_department='Acting')
     serializer = PeopleListSerializer(actors, many=True, context={'request': request})
+    if not actors:
+        return Response({'message': 'No actors found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -99,6 +105,8 @@ def actorList(request, start):
     actors = People.objects.filter(known_for_department='Acting')
     response = actors[start:start+10]
     serializer = PeopleListSerializer(response, many=True, context={'request': request})
+    if not response:
+        return Response({'message': 'No actors found in the specified range', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -106,6 +114,8 @@ def actorList(request, start):
 def directorAll(request):
     directors = People.objects.filter(known_for_department='Directing')
     serializer = PeopleListSerializer(directors, many=True, context={'request': request})
+    if not directors:
+        return Response({'message': 'No directors found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -114,6 +124,8 @@ def directorList(request, start):
     directors = People.objects.filter(known_for_department='Directing')
     response = directors[start:start+10]
     serializer = PeopleListSerializer(response, many=True, context={'request': request})
+    if not response:
+        return Response({'message': 'No directors found in the specified range', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -130,23 +142,26 @@ def directorDetail(request, director_id):
     serializer = PeopleDetailSerializer(director, context={'request': request})
     return Response(serializer.data)
 
-
 @api_view(['GET'])
 def keywordAll(request):
     keywords = Keyword.objects.all()
     serializer = KeywordSerializer(keywords, many=True)
+    if not keywords:
+        return Response({'message': 'No keywords found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def keywordList(request,start):
+def keywordList(request, start):
     keywords = Keyword.objects.all()
     response = keywords[start:start+10]
     serializer = KeywordSerializer(response, many=True)
+    if not response:
+        return Response({'message': 'No keywords found in the specified range', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def keywordDetail(request, keyword_id):
-    keyword = get_object_or_404(Keyword,  pk=keyword_id)
+    keyword = get_object_or_404(Keyword, pk=keyword_id)
     serializer = KeywordDetailSerializer(keyword)
     return Response(serializer.data)
 
@@ -154,6 +169,8 @@ def keywordDetail(request, keyword_id):
 def boxOffice(request):
     movies = Movie.objects.all().order_by('-popularity')[:10]
     serializer = MovieListSerializer(movies, many=True)
+    if not movies:
+        return Response({'message': 'No movies found', 'data': []}, status=status.HTTP_200_OK)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -174,15 +191,17 @@ def movieAll(request):
     else:
         response_data = serializer.data
 
-    return Response(response_data)
+    if not movies:
+        return Response({'message': 'No movies found', 'data': []}, status=status.HTTP_200_OK)
 
+    return Response(response_data)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def movieList(request, start):
     user = request.user
     movies = Movie.objects.all()
-    response = movies[start: start + 10]
+    response = movies[start:start+10]
     serializer = MovieListSerializer(response, many=True)
     refine_list = []
     if user.is_authenticated:
@@ -194,6 +213,10 @@ def movieList(request, start):
         response_data = refine_list
     else:
         response_data = serializer.data
+
+    if not response:
+        return Response({'message': 'No movies found in the specified range', 'data': []}, status=status.HTTP_200_OK)
+
     return Response(response_data)
 
 @api_view(['GET'])
@@ -209,7 +232,8 @@ def movieDetail(request, movie_id):
         is_liked = user.like_movie.filter(id=movie_id).exists()
         movie_data['is_liked'] = is_liked
 
-    return Response(movie_data)
+    return Response(movie_data, status=status.HTTP_200_OK)
+
 
 
 def search_movies(query):
@@ -259,34 +283,37 @@ def search_movies_view(request):
     
     movies = search_movies(query)
     if not movies:
-        return Response({"message": "검색결과가 없습니다."}, status=404)
+        return Response({"message": "검색결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
     
     serializer = MovieSerializer(movies, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def reviewAll(request):
-    reviews = get_list_or_404(Review)
+    reviews = Review.objects.all()
     serializer = ReviewListSerializer(reviews, many=True)
-    return Response(serializer.data)
+    if not reviews:
+        return Response({'message': 'No reviews found', 'data': []}, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def reviewList(request,start):
-    reviews = get_list_or_404(Review)
+def reviewList(request, start):
+    reviews = Review.objects.all()
     response = reviews[start:start+10]
     serializer = ReviewListSerializer(response, many=True)
-    return Response(serializer.data)
+    if not response:
+        return Response({'message': 'No reviews found in the specified range', 'data': []}, status=status.HTTP_200_OK)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
-@api_view(['GET','POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def review(request, movie_id):
-    
     if request.method == 'GET':
         reviews = Review.objects.filter(movie_id=movie_id)
         serializer = ReviewDetailSerializer(reviews, many=True)
-        return Response(serializer.data)
+        if not reviews:
+            return Response({'message': 'No reviews found for this movie', 'data': []}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
     elif request.method == 'POST':
         movie = get_object_or_404(Movie, pk=movie_id)
@@ -295,37 +322,35 @@ def review(request, movie_id):
             if request.user.nickname:
                 return Response({"message": f"{request.user.nickname}님의 리뷰가 이미 존재합니다. 리뷰 수정만 가능합니다."}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"message": f"리뷰가 이미 존재합니다. 리뷰 수정만 가능합니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "리뷰가 이미 존재합니다. 리뷰 수정만 가능합니다."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ReviewCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user, movie=movie)
             movie.update_vote_average() # 평점 업데이트
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
 
-@api_view(['GET','PUT','DELETE'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def reviewDetail(request, review_id):
     review = get_object_or_404(Review, pk=review_id)
     if request.method == 'GET':
         serializer = ReviewDetailSerializer(review)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         if request.user != review.user:
-            return Response({"detail":"리뷰 작성자만 리뷰를 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
-        serializer = ReviewDetailSerializer(review,data=request.data)
+            return Response({"detail": "리뷰 작성자만 리뷰를 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = ReviewDetailSerializer(review, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            review.movie.update_vote_average() #평점 업데이트
-            return Response(serializer.data)
+            review.movie.update_vote_average() # 평점 업데이트
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         if request.user != review.user:
-            return Response({"detail":"리뷰 작성자만 리뷰를 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
-    
-    review.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "리뷰 작성자만 리뷰를 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
 # 자기 자신 프로필
 @api_view(['GET','PUT'])
@@ -354,7 +379,7 @@ def profileDetail(request, user_id):
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def profileList(request):
     users = User.objects.filter(is_superuser=False).filter(is_staff=False)
     serializer = ProfileListSerializer(instance=users, many=True)
@@ -441,7 +466,7 @@ def recommend_movies(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def survey_response(request):
     serializer = SurveyResponseSerializer(data=request.data)
     if serializer.is_valid():
@@ -450,7 +475,7 @@ def survey_response(request):
     return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def survey_recommended_movies(request):
     user = request.user
     survey_recommended_movies = get_similar_movies_survey(user)

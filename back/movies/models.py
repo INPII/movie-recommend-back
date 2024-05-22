@@ -168,7 +168,8 @@ class SurveyResponse(models.Model):
     ])
     question_2 = models.CharField(max_length=1, choices=[
         ('a', '재난'), ('b', '외계인'), ('c', '중세 권력 싸움'), 
-        ('d', '탐정'), ('e', '가족 드라마')
+        ('d', '탐정'), ('e', '가족 드라마'), ('f', '권력싸움'), 
+        ('g', '귀여움'), ('h', '즐거움'), ('i', '상상력'), ('j', '스릴')
     ])
     question_3 = models.CharField(max_length=1, choices=[
         ('a', '지적 악당'), ('b', '용감한 주인공'), ('c', '냉소적 조력자'), 
@@ -184,6 +185,3 @@ class SurveyResponse(models.Model):
     question_6 = models.CharField(max_length=1, choices=[
         ('a', '1~2.9'), ('b', '3~4.9'), ('c', '5~6.9'), ('d', '8~10')
     ])
-
-    def __str__(self):
-        return f"Survey Response by {self.user.username}"
