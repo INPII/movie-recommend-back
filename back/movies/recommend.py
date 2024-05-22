@@ -4,7 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def get_similar_movies(user):
     # 사용자가 좋아요를 누른 영화와 리뷰에서 높은 평점을 준 영화 가져오기
-    liked_movies = user.like_movie.all()
+    liked_movies = user.liked_movies.all()
     reviewed_movies = Review.objects.filter(user=user).order_by('-rating')
 
     # 비교 대상 영화 목록
