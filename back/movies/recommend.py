@@ -4,7 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def get_similar_movies(user):
     # 사용자가 좋아요를 누른 영화와 리뷰에서 높은 평점을 준 영화 가져오기
-    liked_movies = user.like_movie.all()
+    liked_movies = user.liked_movies.all()
     reviewed_movies = Review.objects.filter(user=user).order_by('-rating')
 
     # 비교 대상 영화 목록
@@ -52,7 +52,7 @@ def get_similar_movies(user):
     # 배열을 순회하면서 idx를 가지고 이미 리뷰를 작성하거나 좋아요를 누른 영화와 중복되는지 검사를 해보고 영화를 10개 추천해준다.
     recommended_movies = []
     for idx in similar_movies_index:
-        recommended_movie = all_movies[idx]
+        recommended_movie = all_movies[int(idx)]
         if recommended_movie not in liked_movies and recommended_movie not in reviewed_movies:
             recommended_movies.append(recommended_movie)
             if len(recommended_movies) >= 10:  # 최대 10개 추천

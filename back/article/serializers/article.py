@@ -15,15 +15,16 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ArticleListSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    like_article = UserSerializer(allow_null=True, many=True, read_only=True, source='like_users')
-    like_count = serializers.ReadOnlyField()   
-    
-    #동적필드를 추가할때 유용한 도구 SerializerMethodField, 이걸 쓰지않으면 직접 메서드를 오버라이드하여서 추가해야한다.
+    liked_articles = UserSerializer(allow_null=True, many=True, read_only=True, source='like_users')
+    like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'title', 'content', 'user', 'created_at', 'like_article', 'like_count', 'is_liked',)
+        fields = ('id', 'title', 'content', 'user', 'created_at', 'liked_articles', 'like_count', 'is_liked',)
+
+    def get_like_count(self, obj):
+        return obj.like_users.count()
 
     def get_is_liked(self, obj):
         request = self.context.get('request', None)
@@ -44,11 +45,15 @@ class ArticleListSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     comments = CommentSerializer(read_only=True, many=True)
+    like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = '__all__'
+
+    def get_like_count(self, obj):
+        return obj.like_users.count()
 
     def get_is_liked(self, obj):
         request = self.context.get('request', None)

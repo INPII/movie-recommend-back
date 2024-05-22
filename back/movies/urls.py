@@ -9,7 +9,7 @@ urlpatterns = [
     
     #배우
     path('actor/all/',views.actorAll),
-    path('actor/list/<int:start>',views.actorList),
+    path('actor/list/<int:start>/',views.actorList),
     path('actor/<int:actor_id>/',views.actorDetail),
     
     #감독
@@ -18,7 +18,7 @@ urlpatterns = [
     path('director/<int:director_id>/',views.directorDetail),
     
     #좋아요한 감독/배우
-    path('people/like/<int:people_id>',views.like_people),
+    path('people/like/<int:people_id>/',views.like_people),
 
     #박스오피스
     path('boxoffice/',views.boxOffice),
@@ -40,7 +40,7 @@ urlpatterns = [
 
     #리뷰
     path('review/all/',views.reviewAll),
-    path('review/list/<int:start>',views.reviewList),
+    path('review/list/<int:start>/',views.reviewList),
     path('review/<int:review_id>/',views.reviewDetail),
     path('review/like/<int:review_id>/',views.review_like),
     path('<int:movie_id>/review/',views.review),
