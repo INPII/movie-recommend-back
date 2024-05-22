@@ -111,7 +111,7 @@ class Movie(models.Model):
     people = models.ManyToManyField(People, related_name="filmography")
     keyword = models.ManyToManyField('Keyword', related_name="movies", blank=True)
     like_user = models.ManyToManyField(User, related_name="like_movie", blank=True)
-    name_kr = models.CharField(max_length=300, null=True)
+    name_kr = models.CharField(max_length=300, null=True, blank=True)
     overview_kr = models.TextField(null=True, blank=True)
 
     # 평점을 계속 업데이트
@@ -152,13 +152,6 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.movie.update_vote_average()
-
-# 사람(배우/감독) 좋아요
-class PeopleLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    people = models.ForeignKey(People, on_delete=models.CASCADE)
-
-
 
 # 유저의 장르
 class UserGenre(models.Model):

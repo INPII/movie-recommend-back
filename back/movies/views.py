@@ -11,7 +11,7 @@ from .serializers.movie import MovieListSerializer, MovieDetailSerializer, Surve
 from .serializers.keyword import KeywordSerializer, KeywordDetailSerializer
 from .serializers.searchmovie import MovieSerializer
 from .serializers.review import ReviewListSerializer,ReviewDetailSerializer,ReviewCreateSerializer
-from .serializers.profile import ProfileSerializer,ProfileListSerializer
+from .serializers.profile import ProfileSerializer,ProfileListSerializer,ProfileUpdateSerializer
 from accounts.models import User
 from .recommend import get_similar_movies,get_similar_movies_survey
 
@@ -328,12 +328,22 @@ def reviewDetail(request, review_id):
     return Response(status=status.HTTP_204_NO_CONTENT)
         
 # 자기 자신 프로필
-@api_view(['GET'])
+@api_view(['GET','PUT'])
 @permission_classes([IsAuthenticated])
 def profile(request):
     user = get_object_or_404(User, pk=request.user.id)
-    serializer = ProfileSerializer(instance=user, context={'request': request})
-    return Response(serializer.data)
+    
+    if request.method == 'GET':
+        serializer = ProfileSerializer(instance=user, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = ProfileUpdateSerializer(instance=user, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
 
 # 다른 사람 프로필 페이지
 @api_view(['GET'])
@@ -349,6 +359,8 @@ def profileList(request):
     users = User.objects.filter(is_superuser=False).filter(is_staff=False)
     serializer = ProfileListSerializer(instance=users, many=True)
     return Response(serializer.data)
+
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

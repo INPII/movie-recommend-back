@@ -3,12 +3,12 @@ import json
 
 TMDB_API_KEY = '7206c9eeca4b0f1e1266fd3dcd719152'
 global_movies = []
-global_people = []
+global_people = set()
 global_keywords = set()
 
 def get_movie_datas():
     print('movie')
-    for i in range(1, 2):
+    for i in range(1, 26):  # 페이지 수를 1~2로 제한하여 샘플링
         print(f'moviepage {i}')
         request_url = f"https://api.themoviedb.org/3/movie/popular?api_key={TMDB_API_KEY}&language=en-US&page={i}"
         movies_response = requests.get(request_url).json()
@@ -19,10 +19,16 @@ def get_movie_datas():
             request_keywords_url = f"https://api.themoviedb.org/3/movie/{movie['id']}/keywords?api_key={TMDB_API_KEY}"
             keywords_response = requests.get(request_keywords_url).json()
             
-            for people in credits_response["cast"]:
-                if people["known_for_department"] in ['Acting', 'Directing']:
-                    global_people.append(people['id'])
-
+            actors = sorted(
+                [person for person in credits_response["cast"] if person.get("known_for_department") == 'Acting'],
+                key=lambda x: x['popularity'],
+                reverse=True
+            )[:10]
+            directors = [person for person in credits_response["crew"] if person.get("known_for_department") == 'Directing']
+            
+            for person in actors + directors[:1]:  # 감독은 한 명만 추가
+                global_people.add(person['id'])
+            
             for keyword in keywords_response["keywords"]:
                 global_keywords.add((keyword['id'], keyword['name']))
             
@@ -46,11 +52,15 @@ def get_moviedetail(movieset):
         credits_response = requests.get(request_credits_url).json()
         
         # 배우는 popularity 높은 순으로 정렬하여 상위 10명만 추출
-        actors = sorted([actor for actor in credits_response["cast"] if actor["known_for_department"] == 'Acting'], key=lambda x: x['popularity'], reverse=True)[:10]
+        actors = sorted(
+            [actor for actor in credits_response["cast"] if actor.get("known_for_department") == 'Acting'],
+            key=lambda x: x['popularity'],
+            reverse=True
+        )[:10]
         people_ids = [actor['id'] for actor in actors]
         
         # 감독은 한 명만 추출하여 추가
-        directors = [director['id'] for director in credits_response["crew"] if director["known_for_department"] == 'Directing']
+        directors = [director['id'] for director in credits_response["crew"] if director.get("known_for_department") == 'Directing']
         if directors:
             people_ids.append(directors[0])  # 감독을 추가
 
@@ -64,33 +74,33 @@ def get_moviedetail(movieset):
 
         fields = {
             'adult': movie_en.get('adult', 'null'),
-            'backdrop_path': movie_en['backdrop_path'],
-            'budget': movie_en['budget'],
-            'imdb_id': movie_en['imdb_id'],
-            'origin_country': movie_en['origin_country'],
-            'original_language': movie_en['original_language'],
-            'original_title': movie_en['original_title'],
-            'overview': movie_en['overview'],
-            'popularity': movie_en['popularity'],
-            'poster_path': movie_en['poster_path'],
-            'release_date': movie_en['release_date'],
-            'revenue': movie_en['revenue'],
-            'runtime': movie_en['runtime'],
-            'status': movie_en['status'],
-            'tagline': movie_en['tagline'],
-            'title': movie_en['title'],
-            'video': movie_en['video'],
-            'vote_average': movie_en['vote_average'],
-            'vote_count': movie_en['vote_count'],
-            'genres': [genre['id'] for genre in movie_en['genres']],
+            'backdrop_path': movie_en.get('backdrop_path', 'null'),
+            'budget': movie_en.get('budget', 'null'),
+            'imdb_id': movie_en.get('imdb_id', 'null'),
+            'origin_country': movie_en.get('origin_country', 'null'),
+            'original_language': movie_en.get('original_language', 'null'),
+            'original_title': movie_en.get('original_title', 'null'),
+            'overview': movie_en.get('overview', 'null'),
+            'popularity': movie_en.get('popularity', 'null'),
+            'poster_path': movie_en.get('poster_path', 'null'),
+            'release_date': movie_en.get('release_date', 'null'),
+            'revenue': movie_en.get('revenue', 'null'),
+            'runtime': movie_en.get('runtime', 'null'),
+            'status': movie_en.get('status', 'null'),
+            'tagline': movie_en.get('tagline', 'null'),
+            'title': movie_en.get('title', 'null'),
+            'video': movie_en.get('video', 'null'),
+            'vote_average': movie_en.get('vote_average', 'null'),
+            'vote_count': movie_en.get('vote_count', 'null'),
+            'genres': [genre['id'] for genre in movie_en.get('genres', [])],
             'people': people_ids,
-            'name_kr': movie_kr['title'],
-            'overview_kr': movie_kr['overview'],
+            'name_kr': movie_kr.get('title', 'null'),
+            'overview_kr': movie_kr.get('overview', 'null'),
             'keyword': keyword_ids
         }
 
         data = {
-            "pk": movie_en['id'],
+            "pk": movie_en.get('id', 'null'),
             "model": "movies.movie",
             "fields": fields
         }
@@ -136,7 +146,7 @@ def get_people_data(peopleset):
     for person_id in peopleset:
         request_url = f"https://api.themoviedb.org/3/person/{person_id}?api_key={TMDB_API_KEY}&language=en-US"
         people_response = requests.get(request_url).json()
-
+        print(f'people {person_id}')
         fields = {
             'adult': people_response.get('adult', 'null'),
             'biography': people_response.get('biography', 'null'),
@@ -182,11 +192,10 @@ def get_keyword_data():
     with open("keyword2.json", "w", encoding="utf-8") as w:
         json.dump(total_keyword_data, w, indent=4, ensure_ascii=False)
 
-global_people = []
+global_people = set()
 get_movie_datas()
 set_movies = set(global_movies)
 get_moviedetail(set_movies)
-set_people = set(global_people)
-get_people_data(set_people)
+get_people_data(global_people)
 get_genre_data()
 get_keyword_data()
