@@ -310,7 +310,7 @@ def reviewList(request, start):
 def review(request, movie_id):
     if request.method == 'GET':
         reviews = Review.objects.filter(movie_id=movie_id)
-        serializer = ReviewDetailSerializer(reviews, many=True)
+        serializer = ReviewListSerializer(reviews, many=True)
         if not reviews:
             return Response({'message': 'No reviews found for this movie', 'data': []}, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -466,7 +466,7 @@ def recommend_movies(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def survey_response(request):
     serializer = SurveyResponseSerializer(data=request.data)
     if serializer.is_valid():
@@ -475,7 +475,7 @@ def survey_response(request):
     return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def survey_recommended_movies(request):
     user = request.user
     survey_recommended_movies = get_similar_movies_survey(user)

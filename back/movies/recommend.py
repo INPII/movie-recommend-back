@@ -306,11 +306,11 @@ def get_similar_movies_survey(user):
         'e': ['dragons', 'fantasy', 'myth', 'legend', 'adventure', 'magic', 'sorcery', 'epic', 'creatures', 'heroic'], # 용
         'f': ['space', 'universe', 'astronomy', 'science fiction', 'exploration', 'cosmos', 'aliens', 'galaxy', 'extraterrestrial', 'spaceship'], # 우주
         'g': ['comedy', 'humor', 'funny', 'laughter', 'sitcom', 'parody', 'satire', 'slapstick', 'jokes', 'hilarious'], # 코미디
-        'h': ['horror', 'fear', 'scary', 'thriller', 'terror', 'mystery', 'supernatural', 'creepy', 'haunting', 'nightmare'], # 공포
+        'h': ['horror', 'fear', 'scary', 'terror', 'creepy', 'haunting', 'nightmare', 'crisis'], # 공포
         'i': ['sports', 'competition', 'athletics', 'games', 'fitness', 'exercise', 'championship', 'tournament', 'training', 'team'], # 스포츠
         'j': ['music', 'concert', 'band', 'singing', 'melody', 'orchestra', 'instrument', 'performance', 'harmony', 'lyrics'], # 음악
         'k': ['animation', 'cartoon', 'anime', 'drawings', 'fantasy', 'animated', 'CGI', '2D', '3D', 'stop-motion'], # 애니메이션
-        'l': ['disaster', 'volcano', 'earthquake', 'calamity', 'crisis', 'tsunami', 'hurricane', 'flood', 'catastrophe', 'emergency'] # 자연재해
+        'l': ['disaster', 'volcano', 'earthquake', 'calamity', 'tsunami', 'hurricane', 'flood', 'catastrophe', 'emergency'] # 자연재해
     }
     question_2_genres = {
         'a': ['disaster', 'small town', 'survival', 'emergency', 'chaos', 'adventure'],  # 재난
@@ -397,10 +397,10 @@ def get_similar_movies_survey(user):
     genre_similarities = np.array(genre_similarities)
 
     # 가중치 설정
-    overview_weight = 0.35
-    genre_weight = 0.35
-    q3_weight = 0.15
-    q5_weight = 0.15
+    overview_weight = 0.3
+    genre_weight = 0.3
+    q3_weight = 0.2
+    q5_weight = 0.2
 
     # 최종 유사도 계산 (가중치 적용)
     total_similarity = (overview_weight * overview_sim) + (genre_weight * genre_similarities) + (q3_weight * np.array([1]*len(overview_sim))) + (q5_weight * np.array([1]*len(overview_sim)))

@@ -115,17 +115,24 @@ class Movie(models.Model):
     overview_kr = models.TextField(null=True, blank=True)
 
     # 평점을 계속 업데이트
-    def update_vote_average(self):
-        reviews = self.reviews.all()
-        self.vote_count = reviews.count()
-        if self.vote_count > 0:
-            self.vote_average = sum(review.rating for review in reviews) / self.vote_count
-        else:
-            self.vote_average = 0
+    def update_vote_average(self, new_rating=None, delete_rating=None):
+        if new_rating is not None:
+            total_rating = self.vote_average * self.vote_count + new_rating
+            self.vote_count += 1
+            self.vote_average = round(total_rating / self.vote_count, 2)
+        elif delete_rating is not None:
+            if self.vote_count > 1:
+                total_rating = self.vote_average * self.vote_count - delete_rating
+                self.vote_count -= 1
+                self.vote_average = round(total_rating / self.vote_count, 2)
+            else:
+                self.vote_count = 0
+                self.vote_average = 0
         self.save()
 
     def __str__(self):
         return self.title
+
     
 
 
@@ -147,12 +154,24 @@ class Review(models.Model):
     def __str__(self):
         return self.content
     
-    #리뷰에 작성한 평점을 영화 전체 평점을 나타낼수있도록 저장해서 업데이트
-    # *args는 위치 인수(튜플), **kwargs는 키워드 인수(딕셔너리)
+    # 리뷰 작성과 삭제 시 vote_average, vote_count에 영향을 줌
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        old_rating = None
+        if not is_new:
+            old_review = Review.objects.get(pk=self.pk)
+            old_rating = old_review.rating
         super().save(*args, **kwargs)
-        self.movie.update_vote_average()
-
+        if is_new:
+            self.movie.update_vote_average(new_rating=self.rating)
+        else:
+            self.movie.update_vote_average(delete_rating=old_rating)
+            self.movie.update_vote_average(new_rating=self.rating)
+    
+    def delete(self, *args, **kwargs):
+        movie = self.movie
+        super().delete(*args, **kwargs)
+        movie.update_vote_average(delete_rating=self.rating)
 # 유저의 장르
 class UserGenre(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

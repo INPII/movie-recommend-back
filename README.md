@@ -38,6 +38,16 @@ actor, director을 people로 합침(관리하기가 더 편함)
     - 위의 도구를 사용한다
     - 영화 좋아요, 감독/배우 좋아요, 게시글 좋아요, 리뷰 좋아요 기능 추가
     - 팔로우 기능 추가
+
+
+
+# 5월 22일
+- 영화 추천 알고리즘 구현(사용자 데이터기반), 설문기반
+- url이랑 related_name, 모델 필드 가다듬기,재정의, serializer 재정의
+- 
+
+
+
 ```python
 # 코사인 유사도 추천 방식 코드 및 설명주석
 def get_similar_movies(user):
@@ -98,6 +108,3 @@ def get_similar_movies(user):
 
     return recommended_movies
 ```
-
-- 내일 할 것
-    - 

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from ..models import Movie, People, Genre, Keyword,SurveyResponse
 from accounts.models import User  
+from .review import ReviewListSerializer
  
 class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -39,6 +40,7 @@ class MovieDetailSerializer(serializers.ModelSerializer):
     people = PeopleSerializer(allow_null=True, many=True,read_only=True)
     keywords = KeywordSerializer(allow_null=True, many=True,read_only=True)
     overview = serializers.SerializerMethodField()
+    reviews = ReviewListSerializer(source='review_set', many=True, read_only=True)
 
     class Meta:
         model = Movie
