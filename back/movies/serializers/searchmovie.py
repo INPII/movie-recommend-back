@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ..models import Movie,Genre,People,Keyword
+
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
@@ -18,8 +19,8 @@ class KeywordSerializer(serializers.ModelSerializer):
 class MovieSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True)
     people = PeopleSerializer(many=True)
-    keywords = KeywordSerializer(many=True, source='keyword')
+    keywords = KeywordSerializer(many=True)  # 수정된 부분
     
     class Meta:
         model = Movie
-        fields = ('id','title', 'keywords', 'overview', 'people','genres','people','keywords','poster_path',)
+        fields = ('id', 'title', 'keywords', 'overview', 'people', 'genres', 'poster_path')
