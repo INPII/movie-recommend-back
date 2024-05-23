@@ -168,9 +168,10 @@ def keywordDetail(request, keyword_id):
 @api_view(['GET'])
 def boxOffice(request):
     movies = Movie.objects.all().order_by('-popularity')[:10]
-    serializer = MovieListSerializer(movies, many=True)
     if not movies:
         return Response({'message': 'No movies found', 'data': []}, status=status.HTTP_200_OK)
+    
+    serializer = MovieListSerializer(movies, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -239,8 +240,11 @@ def movieDetail(request, movie_id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def PostProductionMovieList(request):
-    movies = Movie.objects.filter(status="Post Production")
-    serializer = MovieListSerializer(movies, many=True, context={'request':request})
+    movies = Movie.objects.filter(status="Post Production").order_by('release_date')
+    if not movies:
+        return Response({'message': 'No movies found', 'data': []}, status=status.HTTP_200_OK)
+
+    serializer = MovieListSerializer(movies, many=True, context={'request': request})
     return Response(serializer.data)
 
 
