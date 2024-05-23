@@ -38,14 +38,6 @@ class UserGenreSerializer(serializers.ModelSerializer):
         model = UserGenre
         fields = ('id','genre',)
 
-class FollowUserSerializer(serializers.ModelSerializer):
-    followers_count = serializers.IntegerField(source='followers.count', read_only=True)
-    following_count = serializers.IntegerField(source='following.count', read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'nickname', 'profile_path', 'followers_count', 'following_count',)
-
 class ProfileSerializer(serializers.ModelSerializer):
     user_reviews = ReviewSerializer(read_only=True, many=True)
     liked_movies = MovieSerializer(read_only=True, many=True)
@@ -53,17 +45,19 @@ class ProfileSerializer(serializers.ModelSerializer):
     liked_people = PeopleSerializer(read_only=True, many=True)
     is_following = serializers.SerializerMethodField()
     most_liked_genres = serializers.SerializerMethodField()
-    profile_view_count = serializers.IntegerField(read_only=True)  # 프로필 조회수 필드 추가
-    
+    profile_view_count = serializers.IntegerField(read_only=True)
+    followers_count = serializers.IntegerField(source='followers.count', read_only=True)
+    following_count = serializers.IntegerField(source='following.count', read_only=True)
+
     class Meta:
         model = User
         exclude = ('password', 'groups', 'user_permissions', 'is_superuser', 'is_staff', 'is_active',)
 
     def get_is_following(self, obj):
         request = self.context.get('request', None)
-        if request is None or request.user.is_anonymous:
-            return False
-        return obj.followers.filter(id=request.user.id).exists()
+        if request and request.user.is_authenticated:
+            return obj.followers.filter(id=request.user.id).exists()
+        return False
 
     def get_most_liked_genres(self, obj):
         liked_movies = obj.liked_movies.all()
