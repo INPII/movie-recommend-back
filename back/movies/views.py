@@ -424,10 +424,10 @@ def follow(request, user_id):
 
     if target_user.followers.filter(id=user.id).exists():
         target_user.followers.remove(user)
-        return Response({"status": "언팔로우"}, status=status.HTTP_200_OK)
+        return Response({"is_followed": False}, status=status.HTTP_200_OK)
     else:
         target_user.followers.add(user)
-        return Response({"status": "팔로우"}, status=status.HTTP_200_OK)
+        return Response({"is_followed": True}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
