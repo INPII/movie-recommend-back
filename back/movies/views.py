@@ -399,34 +399,30 @@ def profileList(request):
     return Response(serializer.data)
 
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_people(request,people_id):
-    user=request.user
+def like_people(request, people_id):
+    user = request.user
     people = get_object_or_404(People, pk=people_id)
     if people.like_user.filter(pk=user.pk).exists():
         people.like_user.remove(user)
-        serializer = PeopleDetailSerializer(people)
-        return Response(serializer.data)
     else:
         people.like_user.add(user)
-        serializer = PeopleDetailSerializer(people)
-        return Response(serializer.data) 
+    serializer = PeopleDetailSerializer(people, context={'request': request})
+    return Response(serializer.data)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_movie(request,movie_id):
-    user=request.user
+def like_movie(request, movie_id):
+    user = request.user
     movie = get_object_or_404(Movie, pk=movie_id)
     if movie.like_user.filter(pk=user.pk).exists():
         movie.like_user.remove(user)
-        serializer = MovieSerializer(movie)
-        return Response(serializer.data)
     else:
         movie.like_user.add(user)
-        serializer = MovieSerializer(movie)
-        return Response(serializer.data) 
+    serializer = MovieDetailSerializer(movie, context={'request': request})
+    return Response(serializer.data)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

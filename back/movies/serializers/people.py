@@ -33,22 +33,19 @@ class PeopleListSerializer(serializers.ModelSerializer):
         request = self.context.get('request', None)
         if request and request.user.is_authenticated:
             return obj.like_user.filter(id=request.user.id).exists()
-        return None
+        return False
+
 
 # 사람 상세 리스트
+
 class PeopleDetailSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
 
     class MovieSerializer(serializers.ModelSerializer):
-        title = serializers.SerializerMethodField()
         class Meta:
             model = Movie
             fields = ('id', 'title', 'poster_path', 'release_date', 'origin_country')
-        
-        def get_title(self, obj):
-            return obj.name_kr if obj.name_kr else obj.title
-        
-    
+
     filmography = MovieSerializer(many=True, read_only=True)
 
     class Meta:
@@ -59,6 +56,6 @@ class PeopleDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request', None)
         if request and request.user.is_authenticated:
             return obj.like_user.filter(id=request.user.id).exists()
-        return None
+        return False
     
     
