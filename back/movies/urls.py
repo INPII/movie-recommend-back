@@ -27,7 +27,7 @@ urlpatterns = [
     path('all/',views.movieAll),
     path('list/<int:start>/',views.movieList),
     path('<int:movie_id>/',views.movieDetail),
-    path('like/<int:movie_id>',views.like_movie),
+    path('like/<int:movie_id>/',views.like_movie),
     path('postproduction/',views.PostProductionMovieList),
 
     #키워드
