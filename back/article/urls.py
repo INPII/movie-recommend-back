@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.articleAll),
+    path('list/<int:start>/', views.articleList),
     path('like/<int:article_id>/',views.article_like),
     path('<int:article_id>/', views.articleDetail),
     path('comment/<int:article_id>/', views.comment),

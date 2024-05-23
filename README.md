@@ -108,3 +108,6 @@ def get_similar_movies(user):
 
     return recommended_movies
 ```
+
+# 5월 23일
+좋아요를 누르면 is_liked가 true로 바뀌지만 그것을 사람 리스트나 영화리스트에도 볼수있게하려면 context{'request': request} 라고 view에서 설정을 해줘야 리스트에서도 is_liked 상태를 유지하면서 보내줄수 있다.

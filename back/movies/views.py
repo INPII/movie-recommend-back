@@ -258,24 +258,28 @@ def search_movies(query):
             Q(overview__icontains=term) |
             Q(genres__name__icontains=term) |
             Q(people__name__icontains=term) |
-            Q(keywords__name__icontains=term)
+            Q(keywords__name__icontains=term) |
+            Q(overview_kr__icontains=term) |  # 수정된 부분
+            Q(name_kr__icontains=term)       # 수정된 부분
         )
         filters &= term_filter
 
     movies = Movie.objects.filter(filters).distinct()
 
     def sort_key(movie):
-        title_matches = any(term.lower() in movie.title.lower().split() for term in query_terms)
-        keyword_matches = any(term.lower() in [kw.name.lower().split() for kw in movie.keywords.all()] for term in query_terms)
-        overview_matches = any(term.lower() in movie.overview.lower().split() for term in query_terms)
-        genre_matches = any(term.lower() in [genre.name.lower().split() for genre in movie.genres.all()] for term in query_terms)
-        people_matches = any(term.lower() in [person.name.lower().split() for person in movie.people.all()] for term in query_terms)
+        title_matches = any(term.lower() in movie.title.lower() for term in query_terms)
+        keyword_matches = any(term.lower() in [kw.name.lower() for kw in movie.keywords.all()] for term in query_terms)
+        overview_matches = any(term.lower() in movie.overview.lower() for term in query_terms)
+        overview_kr_matches = any(term.lower() in movie.overview_kr.lower() for term in query_terms)
+        genre_matches = any(term.lower() in [genre.name.lower() for genre in movie.genres.all()] for term in query_terms)
+        people_matches = any(term.lower() in [person.name.lower() for person in movie.people.all()] for term in query_terms)
 
         # 정확히 일치하는 경우를 우선적으로 정렬
         return (
             not title_matches,
             not keyword_matches,
             not overview_matches,
+            not overview_kr_matches,  # 수정된 부분
             not genre_matches,
             not people_matches,
         )
@@ -283,6 +287,20 @@ def search_movies(query):
     sorted_movies = sorted(movies, key=sort_key)
 
     return sorted_movies
+
+@api_view(['GET'])
+def search_movies_view(request):
+    query = request.GET.get('q')
+    
+    if not query:
+        return Response({"message": "검색어를 입력해주세요."}, status=400)
+    
+    movies = search_movies(query)
+    if not movies:
+        return Response({"message": "검색결과가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
+    
+    serializer = MovieSerializer(movies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def search_movies_view(request):

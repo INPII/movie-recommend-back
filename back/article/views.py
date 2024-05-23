@@ -14,26 +14,28 @@ from .serializers.comment import CommentListSerializer, CommentSerializer
 from .models import Article,Comment
 
 #context, request는 serializer에서 좋아요 is_liked를 동적으로 구현하기 위한것
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def articleAll(request):
-    articles = Article.objects.all()
-    serializer = ArticleListSerializer(articles, many=True, context={'request': request})
-    return Response(serializer.data)
-
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def articleList(request):
+def articleAll(request):
     if request.method == 'GET':
-        articles = get_list_or_404(Article)
+        articles = Article.objects.all()
         serializer = ArticleListSerializer(articles, many=True, context={'request': request})
-        return Response(serializer.data)
 
     elif request.method == 'POST':
         serializer = ArticleCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def articleList(request, start):
+    if request.method == 'GET':
+        articles = get_list_or_404(Article)[start:start+10]
+        serializer = ArticleListSerializer(articles, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
