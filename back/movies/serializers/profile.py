@@ -67,8 +67,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_most_liked_genres(self, obj):
         liked_movies = obj.liked_movies.all()
-        genre_counts = Genre.objects.filter(movie_genres__in=liked_movies).annotate(
-            like_count=Count('movie_genres__like_user')
+        genre_counts = Genre.objects.filter(genre_movies__in=liked_movies).annotate(
+            like_count=Count('genre_movies__like_user')
         ).order_by('-like_count')
         most_liked_genres = genre_counts[:3]  # 상위 3개의 장르
         return GenreSerializer(most_liked_genres, many=True).data

@@ -5,6 +5,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 import numpy as np
 
+
+# 장르
 def get_genre_vector(genres, all_genres):
     genre_vector = np.zeros(len(all_genres))
     genre_indices = {genre.id: idx for idx, genre in enumerate(all_genres)}
@@ -12,6 +14,7 @@ def get_genre_vector(genres, all_genres):
         genre_vector[genre_indices[genre.id]] = 1
     return genre_vector
 
+#키워드
 def get_keyword_vector(keywords, all_keywords):
     keyword_vector = np.zeros(len(all_keywords))
     keyword_indices = {keyword.id: idx for idx, keyword in enumerate(all_keywords)}
@@ -129,7 +132,7 @@ def get_similar_movies(user):
 
 import numpy as np
 
-
+# 설문을 통한 알고리즘 추천 
 def get_genre_vector(genres, all_genres):
     genre_vector = np.zeros(len(all_genres))
     genre_indices = {genre.id: idx for idx, genre in enumerate(all_genres)}
