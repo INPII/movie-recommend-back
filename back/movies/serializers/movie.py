@@ -8,7 +8,20 @@ class UserSerializer(serializers.ModelSerializer):
             model = User
             fields = '__all__'
 
+class PeopleSerializer(serializers.ModelSerializer):
+    is_liked = serializers.SerializerMethodField()
 
+    class Meta:
+        model = People
+        fields = ('id', 'name', 'profile_path', 'is_liked')
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request', None)
+        if request and request.user.is_authenticated:
+            return obj.like_user.filter(id=request.user.id).exists()
+        return False
+    
+    
 #영화 리스트
 class MovieListSerializer(serializers.ModelSerializer):
     
@@ -28,17 +41,13 @@ class MovieListSerializer(serializers.ModelSerializer):
             return obj.like_user.filter(id=request.user.id).exists()
         return False
 
+
 # 영화 상세 페이지
 class MovieDetailSerializer(serializers.ModelSerializer):
     class GenreSerializer(serializers.ModelSerializer):
         class Meta:
             model = Genre
             fields = '__all__'
-
-    class PeopleSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = People
-            fields = ('id', 'name', 'profile_path',)
 
     class KeywordSerializer(serializers.ModelSerializer):
         class Meta:

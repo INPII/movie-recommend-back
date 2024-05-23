@@ -3,7 +3,6 @@ from accounts.models import User
 import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-# from django.contrib.auth.models import User
 
 class Keyword(models.Model):
     name = models.CharField(max_length=100, null=False)
@@ -11,56 +10,6 @@ class Keyword(models.Model):
     def __str__(self):
         return self.name
 
-# class Genre(models.Model):
-#     name = models.CharField(max_length=100, null=False)
-
-#     def __str__(self):
-#         return self.name
-    
-    
-# class People(models.Model):
-#     adult = models.BooleanField(null=True)
-#     biography = models.TextField(null=True)
-#     birthday = models.DateField(null=True)
-#     deathday = models.DateField(null=True)
-#     gender = models.CharField(max_length=20)
-#     imdb_id = models.CharField(max_length=100, null=True)
-#     known_for_department = models.CharField(max_length=100, null=True)
-#     name = models.CharField(max_length=100, null=False)
-#     place_of_birth = models.TextField(null=True)
-#     popularity = models.FloatField(null=True)
-#     profile_path=models.TextField(null=True)
-#     like_user = models.ManyToManyField(User, blank=True,related_name="like_people")
-
-#     def __str__(self):
-#         return self.name
-
-
-# class Movie(models.Model):
-#     adult = models.BooleanField(null=True)
-#     backdrop_path = models.TextField(null=True)
-#     budget = models.BigIntegerField(null=True)
-#     genres = models.ManyToManyField(Genre, related_name='movies')
-#     imdb_id = models.TextField(null=True)
-#     origin_country = models.CharField(max_length=100, null=True)
-#     original_language = models.CharField(max_length=100,null=True)
-#     original_title = models.CharField(max_length=300,null=True)
-#     overview = models.TextField(null=True,blank=True)
-#     popularity = models.FloatField(null=True)
-#     poster_path = models.TextField(null=True)
-#     release_date = models.DateField(null=True, default=datetime.date.today)
-#     revenue = models.BigIntegerField(null=True) 
-#     runtime = models.IntegerField(null=True)
-#     status = models.CharField(max_length=100, null=True)
-#     tagline = models.TextField(null=True)
-#     title = models.CharField(max_length=300)
-#     video = models.TextField(null=True)
-#     vote_average = models.FloatField(null=True)
-#     vote_count = models.IntegerField(null=True)
-#     detail_count = models.IntegerField(null=True)
-#     people = models.ManyToManyField(People, related_name="filmography")
-#     keyword = models.ManyToManyField(Keyword, related_name="movies",blank=True)
-#     like_user = models.ManyToManyField(User, related_name="like_movie",blank=True)
 
 class People(models.Model):
     adult = models.BooleanField(null=True)
@@ -115,7 +64,6 @@ class Movie(models.Model):
     overview_kr = models.TextField(null=True, blank=True)
 
     # 평점을 계속 업데이트
-
     def update_vote_average(self, new_rating=None, delete_rating=None):
         if new_rating is not None:
             total_rating = self.vote_average * self.vote_count + new_rating

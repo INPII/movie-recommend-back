@@ -43,53 +43,6 @@ def genreDetail(request, genre_id):
     serializer = GenreDetailSerializer(genre)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-# @api_view(['GET'])
-# def actorAll(request):
-#     actors = People.objects.filter(known_for_department='Acting')
-#     serializer = PeopleListSerializer(actors, many=True)
-#     return Response(serializer.data)
-
-# @api_view(['GET'])
-# def actorList(request,start):
-#     actors = People.objects.filter(known_for_department='Acting')
-#     response = actors[start:start+10]
-#     serializer = PeopleListSerializer(response, many=True)
-#     return Response(serializer.data)
-
-
-# @api_view(['GET'])
-# def directorAll(request):
-#     directors = People.objects.filter(known_for_department='Directing')
-#     serializer = PeopleListSerializer(directors, many=True)
-#     return Response(serializer.data)
-
-# @api_view(['GET'])
-# def directorList(request,start):
-#     directors = People.objects.filter(known_for_department='Directing')
-#     response = directors[start:start+10]
-#     serializer = PeopleListSerializer(response, many=True)
-#     return Response(serializer.data)
-
-# @api_view(['GET'])
-# def directorList(request, start):
-#     directors = People.objects.filter(known_for_department='Directing')
-#     response = directors[start: start + 10]
-#     serializer = PeopleListSerializer(response, many=True)
-#     return Response(serializer.data)
-
-
-# @api_view(['GET'])
-# def actorDetail(request, actor_id):
-#     actor = get_object_or_404(People, known_for_department='Acting', pk=actor_id)
-#     serializer = PeopleDetailSerializer(actor)
-#     return Response(serializer.data)
-
-# @api_view(['GET'])
-# def directorDetail(request, director_id):
-#     director = get_object_or_404(People, known_for_department='Directing', pk=director_id)
-#     serializer = PeopleDetailSerializer(director)
-#     return Response(serializer.data)
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def actorAll(request):

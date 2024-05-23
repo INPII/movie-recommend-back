@@ -68,16 +68,3 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('content', 'rating')
         
-
-# # 사람 상세 리스트
-# class PeopleDetailSerializer(serializers.ModelSerializer):
-#     class MovieSerializer(serializers.ModelSerializer):
-#         class Meta:
-#             model = Movie
-#             fields = ('id','title', 'poster_path','release_date','origin_country',)
-
-#     filmography = MovieSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = People
-#         fields = '__all__'

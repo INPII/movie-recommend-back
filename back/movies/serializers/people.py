@@ -1,25 +1,19 @@
 from rest_framework import serializers
 from ..models import People,Movie
 
+class MovieSerializer(serializers.ModelSerializer):
+    is_liked = serializers.SerializerMethodField()
 
-# # 사람 리스트
-# class PeopleListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = People
-#         fields = ('id','name','profile_path',)
+    class Meta:
+        model = Movie
+        fields = ('id', 'title', 'poster_path', 'release_date', 'origin_country', 'is_liked')
 
-# # 사람 상세 리스트
-# class PeopleDetailSerializer(serializers.ModelSerializer):
-#     class MovieSerializer(serializers.ModelSerializer):
-#         class Meta:
-#             model = Movie
-#             fields = ('id','title', 'poster_path','release_date','origin_country',)
+    def get_is_liked(self, obj):
+        request = self.context.get('request', None)
+        if request and request.user.is_authenticated:
+            return obj.like_user.filter(id=request.user.id).exists()
+        return False
 
-#     filmography = MovieSerializer(many=True, read_only=True)
-
-#     class Meta:
-#         model = People
-#         fields = '__all__'
 
 # 사람 리스트
 class PeopleListSerializer(serializers.ModelSerializer):
@@ -36,16 +30,13 @@ class PeopleListSerializer(serializers.ModelSerializer):
         return False
 
 
+
+
+
 # 사람 상세 리스트
 
 class PeopleDetailSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
-
-    class MovieSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = Movie
-            fields = ('id', 'title', 'poster_path', 'release_date', 'origin_country')
-
     filmography = MovieSerializer(many=True, read_only=True)
 
     class Meta:
