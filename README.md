@@ -30,7 +30,7 @@ actor, director을 people로 합침(관리하기가 더 편함)
 추가기능(여유): 검색기능을 제목, 키워드, 배우/감독, 줄거리 로 나눌수있게 selection form으로, 쿼리 나누기 가능
 
 
-# 5월 21
+# 5월 21일
 - 오늘 한 것
     - 메인페이지 박스오피스, 리뷰, 영화리스트 페이지 백에서 프론트로 연결시키기
     - 좋아요를 리스트 페이지에도 구현을 할때 
@@ -122,9 +122,9 @@ def get_similar_movies(user):
     - 유연성과 효율성을 높여서 사용자가 사용하기 편리한 서비스 개발
     - 유지 보수 하기 쉽도록 서비스 개발
 ## 팀원 정보 및 업무 분담 내역
-**이정재**
-    - 팀장, FRONT-END, CSS  
-**박재영**
+ - **이정재**
+    - FRONT-END, CSS, 팀장
+ - **박재영**
     - BACK-END, 영화 추천 알고리즘
 ## 데이터 베이스 모델링(ERD)
     - 사진
@@ -141,7 +141,22 @@ def get_similar_movies(user):
 - 영화 추천 알고리즘을 통해 영화를 추천해주기
 
 **실제 구현 화면**
-    -사진
+- ![alt text](/image/image-1.png)
+- ![alt text](/image/image-1.png)
+- ![alt text](/image/image-2.png)
+- ![alt text](/image/image-3.png)
+- ![alt text](/image/image-4.png)
+- ![alt text](/image/image-5.png)
+- ![alt text](/image/image-6.png)
+- ![alt text](/image/image-7.png)
+- ![alt text](/image/image-8.png)
+- ![alt text](/image/image-9.png)
+- ![alt text](/image/image-10.png)
+- ![alt text](/image/image-11.png)
+- ![alt text](/image/image-12.png)
+- ![alt text](/image/image-13.png)
+- ![alt text](/image/image-14.png)
+- ![alt text](/image/image-15.png)
 
 ## 핵심 기능에 대한 설명
 1. 사용자의 데이터(사용자가 좋아요 누른 영화, 리뷰를 작성한 영화(평점을 높은순으로 들고오기))를 통해서 장르, 키워드, 줄거리의 유사도를 판단하여 영화를 추천하는 알고리즘
@@ -156,7 +171,17 @@ def get_similar_movies(user):
 
 6. 커뮤니티 게시판에 글을 생성하고 그 글의 댓글을 생성할수 있다. 게시글의 조회수를 알 수 있다.
 
-7. 
+7. 게시판의 글 수정은 페이지 이동없이 제목과 본문을 수정 가능
+
+8. 영화 리뷰 또한 페이지 이동없이 별점과 본문을 수정 및 삭제 가능
+
+9. chatGPT 챗봇 기능을 활용할 수 있는 기능
 
 ## 영화 추천 알고리즘에 대한 기술적 설명
 ## 기타(느낀점, 후기 등)
+- 이정재
+
+  전반적으로 Front-end에 사용되는 언어와 프레임워크에 대해 지식이 없었으나 프로젝트를 통한 여러 단계 성장함을 느낄 수 있었습니다.
+  Vue 기반의 프로젝트를 생성하고 Route, Pinia를 통해 SPA에 대한 이해와 흥미를 느낄 수 있었습니다.
+  잠을 줄여가며 개발에 집중함으로써 프로젝트에 깊이 빠져들어 시간 가는 줄 모르고 진행했습니다.
+  추후에는 AI 관련 API를 활용하여 특화된 프로젝트를 진행할 계획입니다.
