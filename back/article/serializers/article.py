@@ -47,7 +47,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(read_only=True, many=True)
     like_count = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
-    view_count = serializers.IntegerField(read_only=True)  # 조회수 필드 추가
+    view_count = serializers.IntegerField(read_only=True)  
 
     class Meta:
         model = Article

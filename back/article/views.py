@@ -66,13 +66,12 @@ def articleDetail(request, article_id):
 def article_like(request, article_id):
     user = request.user
     article = get_object_or_404(Article, pk=article_id)
-    
     if article.like_users.filter(pk=user.pk).exists():
         article.like_users.remove(user)
-        return Response({'message': 'delete', 'like_count': article.like_count}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'is_liked': False, 'like_count': article.like_count}, status=status.HTTP_201_CREATED)
     else:
         article.like_users.add(user)
-        return Response({'message': 'create', 'like_count': article.like_count}, status=status.HTTP_201_CREATED)
+        return Response({'is_liked': True, 'like_count': article.like_count}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET', 'POST'])
