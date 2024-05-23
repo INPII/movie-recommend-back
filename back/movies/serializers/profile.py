@@ -54,7 +54,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     is_following = serializers.SerializerMethodField()
     most_liked_genres = serializers.SerializerMethodField()
     profile_view_count = serializers.IntegerField(read_only=True)  # 프로필 조회수 필드 추가
-
+    
     class Meta:
         model = User
         exclude = ('password', 'groups', 'user_permissions', 'is_superuser', 'is_staff', 'is_active',)

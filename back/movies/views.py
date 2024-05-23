@@ -184,7 +184,7 @@ def movieAll(request):
     if user.is_authenticated:
         for movie in serializer.data:
             movie_id = movie['id']
-            is_liked = user.like_movie.filter(id=movie_id).exists()
+            is_liked = user.like_movies.filter(id=movie_id).exists()
             movie['is_liked'] = is_liked
             refine_list.append(movie)
         response_data = refine_list
@@ -207,7 +207,7 @@ def movieList(request, start):
     if user.is_authenticated:
         for movie in serializer.data:
             movie_id = movie['id']
-            is_liked = user.like_movie.filter(id=movie_id).exists()
+            is_liked = user.like_movies.filter(id=movie_id).exists()
             movie['is_liked'] = is_liked
             refine_list.append(movie)
         response_data = refine_list
