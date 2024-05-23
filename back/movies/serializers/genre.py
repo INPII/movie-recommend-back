@@ -23,7 +23,7 @@ class GenreDetailSerializer(serializers.ModelSerializer):
         def get_title(self, obj):
             return obj.name_kr if obj.name_kr else obj.title
     
-    movies = MovieSerializer(many=True, read_only=True)
+    genre_movies = MovieSerializer(many=True, read_only=True)
 
     class Meta:
         model = Genre

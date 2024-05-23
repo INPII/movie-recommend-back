@@ -13,7 +13,7 @@ class KeywordDetailSerializer(serializers.ModelSerializer):
         class Meta:
             model = Movie
             fields = ('id','title','poster_path',)
-    movies = MovieSerializer(many=True, read_only=True)
+    keyword_movies = MovieSerializer(many=True, read_only=True)
 
     class Meta:
         model = Keyword
